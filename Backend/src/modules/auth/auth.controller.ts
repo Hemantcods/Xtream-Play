@@ -20,7 +20,7 @@ export const register=asyncHandler ( async(req:Request,res:Response,next:NextFun
         })
 })
 
-export const login=asyncHandler(  async(req:Request,res:Response,next:NextFunction)=>{
+export const login=asyncHandler(async(req:Request,res:Response,next:NextFunction)=>{
     const error=validateLogin(req.body)
     if(error){
         throw new AppError(error,400)

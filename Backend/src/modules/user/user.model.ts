@@ -4,10 +4,13 @@ export interface IUser extends Document {
   name: string;
   email?: string;
   phone?: string;
-  isPhoneVerified?: Boolean;
-  password: string;
+  isPhoneVerified?: boolean;
+  isEmailVerified?: boolean;
+  password?: string;
   role: "admin" | "user" | "moderator";
-
+  provider: "local" | "google";
+  googleId?: string;
+  deviceToken?: string;
   //   methods/functions
   comparePassword(candidate: string): Promise<boolean>;
 }
@@ -32,6 +35,10 @@ const userSchema = new Schema<IUser>(
       type: Boolean,
       default: false,
     },
+    isEmailVerified:{
+      type:Boolean,
+      default:false
+    },
     password: {
       type: String,
       select: false,
@@ -41,6 +48,19 @@ const userSchema = new Schema<IUser>(
       default: "user",
       enum: ["user", "admin", "moderator"],
     },
+    // select the provider
+    provider:{
+      type:String,
+      enum:["local","google"]
+    },
+    googleId:{
+      type:String,
+      default:null
+    },
+    deviceToken:{
+      type:String,
+      default:null
+    }
   },
   { timestamps: true },
 );
@@ -49,12 +69,15 @@ const userSchema = new Schema<IUser>(
 userSchema.pre("save", async function () {
   if (!this.isModified("password")) return;
   const saltRounds = 10;
-  this.password = await bcrypt.hash(this.password, saltRounds);
+  if(this.password){
+    this.password = await bcrypt.hash(this.password, saltRounds);
+  }
 });
 
 // compare password
 
 userSchema.methods.comparePassword = async function (candidate: string) {
+  if (!this.password) return false;
   return await bcrypt.compare(candidate, this.password);
 };
 
