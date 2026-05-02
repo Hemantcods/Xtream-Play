@@ -28,7 +28,7 @@ export interface ITournament extends Document{
     StartTime:Date,
     winner?:ObjectId,
     maxPlayers:number,
-    createdBy:ObjectId,
+    createdBy?:ObjectId,
     PlacementPrize:{
         "first":number,
         "second":number,
@@ -95,7 +95,7 @@ const TournamentSchema=new mongoose.Schema<ITournament>({
     createdBy:{
         type:Schema.Types.ObjectId,
         ref:"User",
-        required:true
+        // required:true
     },
     PlacementPrize:{
         first:{
