@@ -1,3 +1,4 @@
+import e from "express";
 import { Tournament } from "./tournament.model.js";
 
 export const createTournament = async (data: any,creator:any) => {
@@ -15,3 +16,11 @@ export const getTournaments = async () => {
     const tournaments = await Tournament.find();
     return tournaments;
 };
+
+export const getTournament=async(id:string)=>{
+    if(!id){
+        throw new Error('Tournament id is required')
+    }
+    const tournament=await Tournament.findOne({_id:id})
+    return tournament;
+}

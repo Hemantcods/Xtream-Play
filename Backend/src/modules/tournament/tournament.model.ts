@@ -33,7 +33,8 @@ export interface ITournament extends Document{
         "first":number,
         "second":number,
         "third":number
-    }
+    },
+    isCompleted?:boolean
 }
 
 const TournamentSchema=new mongoose.Schema<ITournament>({
@@ -110,6 +111,10 @@ const TournamentSchema=new mongoose.Schema<ITournament>({
             type:Number,
             default:0
         }
+    },
+    isCompleted:{
+        type:Boolean,
+        default:false
     }
 }, { timestamps: true })
 

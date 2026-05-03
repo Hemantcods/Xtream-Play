@@ -13,3 +13,9 @@ export const validateCreateTournament=(data:any):string|null=>{
     if(!maxPlayers) return "Max players is required"
     return null
 }
+export const validateStartTournament=(data:any):string|null=>{
+    const {roomId,roomPassword}=data
+    if(!roomId) return "Room id is required"
+    if(!roomPassword) return "Room password is required"
+    return null
+}
