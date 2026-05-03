@@ -55,11 +55,13 @@ const userSchema = new Schema<IUser>(
     },
     googleId:{
       type:String,
-      default:null
+      default:null,
+      select:false
     },
     deviceToken:{
       type:String,
-      default:null
+      default:null,
+      select:false
     }
   },
   { timestamps: true },

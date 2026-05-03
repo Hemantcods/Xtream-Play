@@ -1,9 +1,9 @@
-import mongoose, { ObjectId, Schema } from "mongoose";
+import mongoose, { Schema } from "mongoose";
 import { Document } from "mongoose";
 
 export interface IParticipant extends Document {
-  userId: ObjectId;
-  tournamentId: ObjectId;
+  userId: mongoose.Types.ObjectId;
+  tournamentId: mongoose.Types.ObjectId;
   stats?: {
     kills: number;
     rank: number;
@@ -39,4 +39,4 @@ const ParticipantSchema = new Schema<IParticipant>({
 }, { timestamps: true });
 
 
-export const Participant=mongoose.model("Participant",ParticipantSchema)
+export const Participant=mongoose.model<IParticipant>("Participant",ParticipantSchema)

@@ -80,8 +80,9 @@ All API routes are prefixed with `/api`.
 *(Routes to be implemented)*
 
 ### Participants
-*(Routes to be implemented)*
-
+- `POST /api/participants/:tournamentId/join` - Join a tournament (protected)
+- `POST /api/participants/:tournamentId/leave` - Leave a tournament (protected)
+- `GET /api/:tournamentId/participants` - Get participants for a tournament (public)
 ### Wallet
 *(Routes to be implemented)*
 
