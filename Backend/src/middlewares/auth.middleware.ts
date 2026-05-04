@@ -6,15 +6,23 @@ import { IUser } from "../modules/user/user.model.js"; // adjust path
 export interface AuthRequest extends Request {
   user?: IUser;
 }
+
+interface JwtPayload {
+  userId: string;
+  role: string;
+}
 export const authenticateUser = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
-    const token = req.headers.authorization?.split(' ')[1]; // Bearer TOKEN
-
+    const authHeader = req.headers.authorization
+    if(!authHeader || !authHeader.startsWith("Bearer")){
+      throw new AppError("Access denined. No token provided",401) 
+    }
+    const token = req.headers.authorization?.split(' ')[1]; 
     if (!token) {
       throw new AppError("Access denied. No token provided.", 401);
     }
 
-    const decoded = verifyAcessToken(token);
+    const decoded = verifyAcessToken(token) as JwtPayload;
     const userId = decoded.userId;
 
     // Fetch user from database to get role and other details
@@ -37,10 +45,18 @@ export const authenticateUser = async (req: AuthRequest, res: Response, next: Ne
 };
 
 // Middleware to check if user is admin
-export const authorizeAdmin = (req: AuthRequest, res: Response, next: NextFunction) => {
-  if (req.user && req.user.role === 'admin') {
-    next();
-  } else {
-    next(new AppError("Access denied. Admin only.", 403));
+export const authorizeAdmin = (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  if (!req.user) {
+    return next(new AppError("Unauthorized", 401));
   }
+
+  if (req.user.role !== "admin") {
+    return next(new AppError("Access denied. Admin only.", 403));
+  }
+
+  return next();
 };
