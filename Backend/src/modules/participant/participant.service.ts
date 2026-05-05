@@ -4,6 +4,11 @@ import { Participant } from "./participant.model.js";
 import { AppError } from "../../utils/AppError.js";
 import { Wallet } from "../wallet/wallet.model.js";
 import { Transaction } from "../transaction/transaction.model.js";
+import {
+  checkWalletService,
+  creditWalletService,
+  debitWalletService,
+} from "../wallet/wallet.service.js";
 
 export const JoinTournamentService = async (
   tournamentId: mongoose.Types.ObjectId,
@@ -40,31 +45,31 @@ export const JoinTournamentService = async (
       throw new AppError("Tournament is full, cannot join", 400);
     }
     // check wallet balance
-    const wallet = await Wallet.findOne({ userId }).session(session);
+    const wallet = await checkWalletService(userId, session);
     if (!wallet || wallet.balance < tournament.entryFee) {
       throw new AppError("Insufficient wallet balance", 400);
     }
     // wallet deduction
-    wallet.balance -= tournament.entryFee;
-    await wallet.save({ session });
-
-    // transaction
-    await Transaction.create([{
-        userId,
-        amount: tournament.entryFee,
-        type: "debit",
-        reason: "tournament_join",
-        tournamentId
-    }],{session})
-
+    await debitWalletService(
+      userId,
+      tournament.entryFee,
+      session,
+      "tournament_join",
+      tournamentId,
+    );
     // create a new participant
-    const participant = await Participant.create([{ tournamentId, userId }],{session});
+    const participant = await Participant.create([{ tournamentId, userId }], {
+      session,
+    });
     await session.commitTransaction();
     session.endSession();
-    return participant;
+    return participant[0];
   } catch (error) {
     await session.abortTransaction();
     session.endSession();
+    if (error instanceof AppError) {
+      throw error;
+    }
     throw new AppError((error as Error).message, 500);
   }
 };
@@ -73,22 +78,39 @@ export const LeaveTournamentService = async (
   tournamentId: mongoose.Types.ObjectId,
   userId: mongoose.Types.ObjectId,
 ) => {
-  if (!tournamentId) {
-    throw new AppError("Tournament id is required", 400);
+  const session = await mongoose.startSession();
+  session.startTransaction();
+  try {
+    if (!tournamentId) {
+      throw new AppError("Tournament id is required", 400);
+    }
+    if (!userId) {
+      throw new AppError("User id is required", 400);
+    }
+    const participant = await Participant.findOneAndDelete({
+      tournamentId,
+      userId,
+    },{session});
+    if (!participant) {
+      throw new AppError("User is not a participant in this tournament", 400);
+    }
+    // refund the tournament entry fee
+    const tournament = await Tournament.findById(tournamentId,{session});
+    if(!tournament) throw new AppError("Tournament not found",404)
+    const amount=tournament?.entryFee
+    await creditWalletService(userId,amount,session,"tournament_refund",tournamentId)
+    await session.commitTransaction();
+    session.endSession()
+    return participant;
+  } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
+    if (error instanceof AppError) {
+      throw error;
+    }
+    throw new AppError((error as Error).message, 500);
   }
-  if (!userId) {
-    throw new AppError("User id is required", 400);
-  }
-  const participant = await Participant.findOneAndDelete({
-    tournamentId,
-    userId,
-  });
-  if (!participant) {
-    throw new AppError("User is not a participant in this tournament", 400);
-  }
-  return participant;
 };
-
 export const GetParticipantsService = async (
   tournamentId: mongoose.Types.ObjectId,
 ) => {

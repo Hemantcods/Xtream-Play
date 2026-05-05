@@ -8,7 +8,7 @@ export const validateJoinTournament=(data:any):string|null=>{
         return "Invalid tournament id"
     }
     if(!mongoose.Types.ObjectId.isValid(userId)){
-        return "Invalid tournament id"
+        return "Invalid user id"
     }
     if(!tournamentId) return "Tournament id is required"
     return null
