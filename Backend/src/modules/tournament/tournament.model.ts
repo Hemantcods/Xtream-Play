@@ -28,12 +28,13 @@ export interface ITournament extends Document{
     StartTime:Date,
     winner?:ObjectId,
     maxPlayers:number,
-    createdBy:ObjectId,
+    createdBy?:ObjectId,
     PlacementPrize:{
         "first":number,
         "second":number,
         "third":number
-    }
+    },
+    isCompleted?:boolean
 }
 
 const TournamentSchema=new mongoose.Schema<ITournament>({
@@ -95,7 +96,7 @@ const TournamentSchema=new mongoose.Schema<ITournament>({
     createdBy:{
         type:Schema.Types.ObjectId,
         ref:"User",
-        required:true
+        // required:true
     },
     PlacementPrize:{
         first:{
@@ -110,6 +111,10 @@ const TournamentSchema=new mongoose.Schema<ITournament>({
             type:Number,
             default:0
         }
+    },
+    isCompleted:{
+        type:Boolean,
+        default:false
     }
 }, { timestamps: true })
 
