@@ -1,3 +1,7 @@
 <resources>
-    <string name="app_name">My Application</string>
+    <string name="app_name" translatable="false">xtream-play</string>
+    <string name="password">Password</string>
+    <string name="login">Login</string>
+    <string name="social_login">Social Login</string>
+    <string name="username">Username</string>
 </resources>
