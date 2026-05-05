@@ -1,7 +1,7 @@
 import mongoose, { Document } from "mongoose";
 
 export interface IWithdrawl extends Document{
-    userId:mongoose.Schema.Types.ObjectId,
+    userId:mongoose.Types.ObjectId,
     amount:Number,
     status:"pending"|"success"|"rejected"
 }
@@ -9,7 +9,7 @@ export interface IWithdrawl extends Document{
 
 const WithdrawlSchema=new mongoose.Schema<IWithdrawl> ({
         userId:{
-            type:mongoose.Types.ObjectId,
+            type:mongoose.Schema.Types.ObjectId,
             ref:"User",
             required:true
         },

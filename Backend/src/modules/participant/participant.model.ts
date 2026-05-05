@@ -38,5 +38,5 @@ const ParticipantSchema = new Schema<IParticipant>({
   },
 }, { timestamps: true });
 
-
+ParticipantSchema.index({ userId: 1, tournamentId: 1 }, { unique: true });
 export const Participant=mongoose.model<IParticipant>("Participant",ParticipantSchema)
