@@ -1,0 +1,25 @@
+com.example.myapplication
+color black
+color white
+drawable baseline_account_circle_24
+drawable google
+drawable ic_launcher_background
+drawable ic_launcher_foreground
+drawable login_background
+drawable rounded_corner
+id btnLogin
+id main
+id passwordInput
+id usernameInput
+layout activity_main
+mipmap ic_launcher
+mipmap ic_launcher_round
+string app_name
+string login
+string password
+string social_login
+string username
+style Base_Theme_MyApplication
+style Theme_MyApplication
+xml backup_rules
+xml data_extraction_rules
