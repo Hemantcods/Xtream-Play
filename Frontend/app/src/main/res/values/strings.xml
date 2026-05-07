@@ -4,4 +4,9 @@
     <string name="login">Login</string>
     <string name="social_login">Social Login</string>
     <string name="username">Username</string>
+    <string name="Password">PASSWORD</string>
+    <string name="Username">USERNAME</string>
+    <string name="Login">Login</string>
+    <string name="Signup">SignUp</string>
+    <string name="sociallogin">Social Login</string>
 </resources>

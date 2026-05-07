@@ -3,12 +3,10 @@ package com.example.myapplication
 import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
-import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.OnApplyWindowInsetsListener
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 
@@ -16,6 +14,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var usernameInput : EditText
     lateinit var passwordInput : EditText
     lateinit var btnLogin : Button
+
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,12 +28,24 @@ class MainActivity : AppCompatActivity() {
 
         usernameInput = findViewById(R.id.usernameInput)
         passwordInput = findViewById(R.id.passwordInput)
-        btnLogin = findViewById(R.id.btnLogin)
+        btnLogin = findViewById(R.id.login_btn)
         btnLogin.setOnClickListener {
             val username = usernameInput.text.toString()
             val password = passwordInput.text.toString()
-            Log.i("Test Credentials", "Username : $username & Password : $password")
-            // TODO: Implement authentication logic
+
+            if (username.isNotEmpty() && password.isNotEmpty()) {
+                usernameInput.error = null
+                passwordInput.error = null
+                Log.i("Test Credentials", "Username : $username & Password : $password")
+            } else {
+                if (username.isEmpty()) {
+                    usernameInput.error = "Username is required"
+                }
+                if (password.isEmpty()) {
+                    passwordInput.error = "Password is required"
+                }
+                Log.w("Test Credentials", "Username or Password cannot be empty")
+            }
         }
     }
 }
