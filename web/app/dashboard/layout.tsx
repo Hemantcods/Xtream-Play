@@ -1,62 +1,124 @@
-import { CalendarDotsIcon, CrownIcon, HouseIcon, TrophyIcon, UserIcon } from "@phosphor-icons/react/dist/ssr";
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
+
+import {
+  CalendarDotsIcon,
+  CrownIcon,
+  HouseIcon,
+  TrophyIcon,
+  UserIcon,
+  ListIcon,
+  XIcon,
+} from "@phosphor-icons/react";
+import Navbar from "@/Components/Navbar";
+
 const Sidebar = [
-  { id: 1, name: "Home", icon:HouseIcon, link: "/dashboard" },
+  {
+    id: 1,
+    name: "Home",
+    icon: HouseIcon,
+    link: "/dashboard",
+  },
   {
     id: 2,
     name: "My Tournaments",
     icon: TrophyIcon,
-    link: "/tournaments",
+    link: "/dashboard/tournaments",
   },
   {
     id: 3,
     name: "Schedule",
     icon: CalendarDotsIcon,
-    link: "/schedule",
+    link: "/dashboard/schedule",
   },
   {
     id: 4,
     name: "Leaderboard",
     icon: CrownIcon,
-    link: "/leaderboard",
+    link: "/dashboard/leaderboard",
   },
   {
     id: 5,
     name: "Contact Us",
     icon: UserIcon,
-    link: "/contact",
+    link: "/dashboard/contact",
   },
 ];
+
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const [open, setOpen] = useState(false);
+
   return (
-    <div className="flex min-h-screen">
-      <aside className="w-50 border-r p-4 bg-[#111622]">
-        <div className="title flex-col flex w-full align-items-center justify-content-center text-4xl font-bold capitalize text-center">
-          <div className="text-[#BF5555]">Xtreme</div>
-          <div className="text-white">play</div>
+    <div className="flex h-screen bg-[#0B1120] overflow-hidden">
+      {/* Mobile Menu Button */}
+      <button
+        onClick={() => setOpen(true)}
+        className="fixed top-4 left-4 z-50 rounded-lg bg-[#111622] p-2 text-white md:hidden"
+      >
+        <ListIcon size={28} />
+      </button>
+
+      {/* Overlay */}
+      {open && (
+        <div
+          className="fixed inset-0 z-40 bg-black/50 md:hidden"
+          onClick={() => setOpen(false)}
+        />
+      )}
+
+      {/* Sidebar */}
+      <aside
+        className={`
+          fixed z-50 h-full w-64 border-r border-gray-800 bg-[#111622] p-4
+          transition-transform duration-300
+          
+          ${open ? "translate-x-0" : "-translate-x-full"}
+
+          md:translate-x-0
+          md:static
+        `}
+      >
+        {/* Close Button Mobile */}
+        <div className="flex justify-end md:hidden">
+          <button onClick={() => setOpen(false)}>
+            <XIcon size={28} color="white" />
+          </button>
         </div>
-        <div className="icons flex flex-col mt-10 gap-4 text-white">
+
+        {/* Logo */}
+        <div className="mt-4 flex flex-col items-center text-4xl font-bold">
+          <div className="text-[#BF5555]">Xtreme</div>
+          <div className="text-white">Play</div>
+        </div>
+
+        {/* Menu */}
+        <div className="mt-10 flex flex-col gap-2 ">
           {Sidebar.map((item) => (
             <Link
               href={item.link}
               key={item.id}
-              className="flex items-center gap-4 rounded-xl px-4 py-3 text-gray-300 hover:bg-[#1D2638] hover:text-white transition-all duration-200"
+              className="flex items-center gap-4 rounded-xl px-4 py-3 text-gray-300 hover:bg-[#1D2638] hover:text-white transition"
             >
-              <item.icon size={26}  />
+              <item.icon size={26} weight="duotone" />
 
-              <span className="text-sm font-medium">
-                {item.name}
-              </span>
+              <span>{item.name}</span>
             </Link>
           ))}
         </div>
       </aside>
-
-      <main className="flex-1 p-6">{children}</main>
+      <div className="flex flex-col h-full w-full flex-1">
+        <div>
+          <Navbar />
+        </div>
+        {/* Main */}
+        <main className="flex-1 w-full h-full text-white md:ml-0">{children}</main>
+      </div>
     </div>
   );
 }
