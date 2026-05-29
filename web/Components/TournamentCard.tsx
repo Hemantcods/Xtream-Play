@@ -15,7 +15,7 @@ const TournamentCard = ({
   status,
 }: TournamentCardProps) => {
   return (
-    <div className="w-full h-64 border-2 border-white rounded-2xl p-4 flex flex-col">
+    <div className="w-full h-40 border-2 border-white rounded-2xl p-4 flex flex-col">
 
       {/* Title */}
       <div className="text-2xl font-bold text-white">
