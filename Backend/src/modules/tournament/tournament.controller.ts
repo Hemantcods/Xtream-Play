@@ -28,7 +28,7 @@ export const getAllTournaments=asyncHandler(async(req:Request,res:Response,next:
     }
     res.status(200).json({
         success:true,
-        tournaments
+        data:tournaments
     })
 })
 

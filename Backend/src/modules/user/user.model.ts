@@ -11,6 +11,7 @@ export interface IUser extends Document {
   provider: "local" | "google";
   googleId?: string;
   deviceToken?: string;
+  refreshToken?: string;
   //   methods/functions
   comparePassword(candidate: string): Promise<boolean>;
 }
@@ -59,6 +60,11 @@ const userSchema = new Schema<IUser>(
       select:false
     },
     deviceToken:{
+      type:String,
+      default:null,
+      select:false
+    },
+    refreshToken:{
       type:String,
       default:null,
       select:false
