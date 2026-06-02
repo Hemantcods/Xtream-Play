@@ -3,10 +3,11 @@ import TournamentCard from "@/Components/TournamentCard";
 import { useAuth } from "@/context/AuthContext";
 import { useEffect, useState } from "react";
 import { getAllTournaments } from "@/lib/services/tournamentService";
+import { Tournament } from "@/types/tournament";
 
 export default function Dashboard() {
   const { user } = useAuth();
-  const [tournaments, setTournaments] = useState([]);
+  const [tournaments, setTournaments] = useState([] as Tournament[]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -153,7 +154,7 @@ export default function Dashboard() {
             </div>
           </div>
         </div>
-        <div className="overflow-y-scroll max-h-[60%] gap-y-5 flex flex-col  custom-scrollbar">
+        <div className="overflow-y-scroll max-h-[60%] gap-y-5 flex flex-col  custom-scrollbar mt-10">
           {tournaments.map((tournament) => (
             <TournamentCard
               key={tournament._id}
@@ -169,7 +170,7 @@ export default function Dashboard() {
       <div className="right w-[70%] h-full ">
         <div className="p-10">
           <div className="Image w-full h-96 overflow-hidden rounded-2xl ">
-            <img src="https://imgs.search.brave.com/yQ8EPqKXd9_Jw64QTX_F4ysg6A5L7oqeLeuGIbp7CKk/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9pbWFn/ZXMuc2Z0Y2RuLm5l/dC9pbWFnZXMvdF9h/cHAtY292ZXItcy,/m_X2F1dG8vcC8wNzU1/NTZkNS1kNzA2LTRk/MTctYTc2ZS0xZjQw/M2JlNDZiM2IvMTUx/OTE2OTc4L2ZyZWUt/ZmlyZS1nYW1lbG9v/cC1GRi0xJTIwKDEp/LnBuZw" alt="cover"  className="h-full w-full" />
+            <img src="" alt="cover"  className="h-full w-full" />
           </div>
         </div>
       </div>

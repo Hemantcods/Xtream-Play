@@ -1,4 +1,5 @@
 import { jwtDecode } from "jwt-decode";
+import { refresh } from "next/cache";
 
 interface RegisterData {
   name: string;
@@ -25,7 +26,16 @@ interface AuthResponse {
   accessToken: string;
   refreshToken: string;
 }
-
+interface AuthResponseUser{
+  success:boolean,
+  user:{
+    id: string;
+    name: string;
+    email?: string;
+    phone?: string;
+    role: "admin" | "user" | "moderator";
+  }
+}
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3001/api";
 
 export const authService = {
@@ -102,7 +112,41 @@ export const authService = {
     // Check if token is expired
     const currentTime = Date.now() / 1000;
     return decoded.exp > currentTime;
-
+  },
+  getMe:async(id:string|null):Promise<AuthResponseUser>=>{
+    if(!id){
+      throw new Error("User ID is required to fetch user data");
+    }
+    const response=await fetch(`${API_BASE_URL}/auth/me`,{
+      method:"GET",
+      headers:{
+        "Content-Type":"application/json",
+        Authorization:`Bearer ${authService.getAccessToken()}`
+      }
+    })
+    if (!response.ok){
+      throw new Error(`Failed to fetch user data`)
+    }
+    return response.json()
+  },
+  refreshToken: async (): Promise<{ accessToken: string }> => {
+    const refreshToken = authService.getRefreshToken();
+    if (!refreshToken) {
+      throw new Error("No refresh token available");
+    }
     
+    const response = await fetch(`${API_BASE_URL}/auth/refresh-token`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ refreshToken }),
+    });
+    const {accessToken} = await response.json();
+    if (!response.ok) {
+      throw new Error(`Failed to refresh token: ${response.statusText}`);
+    }
+    authService.setAccessToken(accessToken);
+    return accessToken;
   }
 };

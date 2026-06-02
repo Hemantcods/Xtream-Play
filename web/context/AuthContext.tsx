@@ -34,6 +34,9 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
+  const [userid,setuserid]=useState<{
+    id: string;
+}|null>(null)
   const [user, setUser] = useState<
     {
       id: string;
@@ -49,21 +52,21 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   useEffect(() => {
     const checkAuthStatus = async () => {
       try {
-        const token = authService.getAccessToken();
-        if (token && authService.isAuthenticated()) {
-          const decoded = authService.decodeToken(token);
-          if (decoded) {
-            setUser({
-              id: decoded.id,
-              name: decoded.name,
-              email: decoded.email,
-              phone: decoded.phone,
-              role: decoded.role,
-            });
-            console.log("User authenticated:", decoded);
-            setIsAuthenticated(true);
+        var token = authService.getAccessToken();
+        if (token){
+          if (!authService.isAuthenticated){
+            // request new token to the server using refresh token
+            const newToken =await authService.refreshToken()
+            token=newToken.accessToken
           }
         }
+        const decodedToken = authService.decodeToken(token as string);
+        if (!decodedToken || !decodedToken.userId) {
+          throw new Error("Invalid token");
+        }
+        const response=await authService.getMe(decodedToken.userId)
+        setUser(response.user);
+        setIsAuthenticated(true);
       } catch (error) {
         console.error("Error checking auth status:", error);
       } finally {
