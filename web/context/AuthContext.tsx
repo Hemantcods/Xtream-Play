@@ -54,7 +54,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       try {
         var token = authService.getAccessToken();
         if (token){
-          if (!authService.isAuthenticated){
+          if (!authService.isAuthenticated()){
+            console.log("Access token expired, refreshing...");
             // request new token to the server using refresh token
             const newToken =await authService.refreshToken()
             token=newToken.accessToken

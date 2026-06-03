@@ -106,7 +106,6 @@ export const authService = {
     if (!token) return false;
     
     const decoded = authService.decodeToken(token);
-    console.log(decoded);
     if (!decoded) return false;
     
     // Check if token is expired
