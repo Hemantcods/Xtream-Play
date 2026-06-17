@@ -1,10 +1,12 @@
-import jwt from 'jsonwebtoken'
+import jwt, { JwtPayload } from 'jsonwebtoken'
 import {env} from '../config/env.js'
 import { AppError } from './AppError.js';
 
 if (!env.ACCESS_SECRET) throw new AppError("ACCESS_SECRET is not defined",500);
 if (!env.REFRESH_SECRET) throw new AppError("REFRESH_SECRET is not defined",500);
-
+interface TokenPayload extends JwtPayload {
+  userId:string
+}
 
 export const generateAccessToken = (
  userId:string
@@ -33,4 +35,12 @@ export const verifyAcessToken=(
         token,
         env.ACCESS_SECRET
     )
+}
+export const verifyRefreshToken=(
+    token:string
+):TokenPayload=>{
+    return jwt.verify(
+        token,
+        env.REFRESH_SECRET
+    ) as TokenPayload
 }

@@ -3,6 +3,9 @@ import { loginUser, registerUser } from "../auth/auth.service.js"
 import { validateLogin, validateRegister } from "../auth/auth.validator.js";
 import { AppError } from "../../utils/AppError.js";
 import { asyncHandler } from "../../utils/AsyncHandler.js";
+import { generateAccessToken, verifyRefreshToken } from "../../utils/jwt.js";
+import { AuthRequest } from "../../middlewares/auth.middleware.js";
+import { User } from "../user/user.model.js";
 
 
 // after regitering the user send back the user
@@ -31,4 +34,48 @@ export const login=asyncHandler(async(req:Request,res:Response,next:NextFunction
         message:'User Logged in Successfully',
         ...data
     })
+})
+
+export const refreshAccessToken=asyncHandler(async(req:Request,res:Response,next:NextFunction)=>{
+    const {refreshToken}=req.body
+    if(!refreshToken){
+        throw new AppError('Refresh token is required',400)
+    }
+    const verified=verifyRefreshToken(refreshToken)
+    if (!verified){
+        throw new AppError("RefrehToken is expired",400)
+    }
+    const userid=verified.userId
+    const newToken=generateAccessToken(userid)
+    res.status(200).json({
+      success:true,
+      accessToken:newToken
+    });
+})
+
+export const getMe=asyncHandler(async (req: AuthRequest, res: Response) => {
+    res.status(200).json({
+      success: true,
+      user: req.user,
+    });
+  })
+export const refreshToken=asyncHandler(async(req:Request,res:Response,next:NextFunction)=>{
+    const {refreshToken}=req.body
+    if(!refreshToken){
+        throw new AppError('Refresh token is required',400)
+    }
+    const verified=verifyRefreshToken(refreshToken)
+    if (!verified){
+        throw new AppError("RefrehToken is expired",400)
+    }
+    const userid=verified.userId
+    const user=await User.findById(userid).select('+refreshToken')
+    if(!user || user.refreshToken !== refreshToken){
+        throw new AppError("Invalid refresh token",400)
+    }
+    const newToken=generateAccessToken(userid)
+    res.status(200).json({
+      success:true,
+      accessToken:newToken
+    });
 })

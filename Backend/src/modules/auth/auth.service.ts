@@ -61,6 +61,9 @@ export const loginUser = async (data: {
   const refreshToken=generateRefreshToken(user.id)
 // 30d expiry
 
+  user.refreshToken=refreshToken
+  await user.save()
+
   // remove password from user object
   user.password=""
   return {
