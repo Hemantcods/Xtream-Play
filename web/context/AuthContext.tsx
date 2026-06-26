@@ -53,20 +53,22 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   useEffect(() => {
     const checkAuthStatus = async () => {
       try {
-        var token = authService.getAccessToken();
-        if (token){
-          if (!authService.isAuthenticated()){
+        let token = authService.getAccessToken();
+
+        if (!token) {
+          // No token found, user is not authenticated.
+          // We can stop here.
+          return;
+        }
+
+        if (!authService.isAuthenticated()) {
             console.log("Access token expired, refreshing...");
-            // request new token to the server using refresh token
-            const newToken =await authService.refreshToken()
-            token=newToken.accessToken
-          }
+            const newToken = await authService.refreshToken();
+            token = newToken.accessToken;
         }
-        const decodedToken = authService.decodeToken(token as string);
-        if (!decodedToken || !decodedToken.userId) {
-          throw Error("Invalid token");
-        }
-        const response=await authService.getMe(decodedToken.userId)
+
+        const decodedToken = authService.decodeToken(token);
+        const response = await authService.getMe(decodedToken.userId);
         setUser(response.user);
         setIsAuthenticated(true);
       } catch (error) {
