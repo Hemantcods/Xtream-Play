@@ -17,6 +17,7 @@ interface AuthContextType {
   register: (data: RegisterData) => Promise<void>;
   logout: () => void;
   refreshToken: () => Promise<void>;
+  getAccessToken: () => string | null;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -63,7 +64,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         }
         const decodedToken = authService.decodeToken(token as string);
         if (!decodedToken || !decodedToken.userId) {
-          throw new Error("Invalid token");
+          throw Error("Invalid token");
         }
         const response=await authService.getMe(decodedToken.userId)
         setUser(response.user);
@@ -107,7 +108,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     setUser(null);
     setIsAuthenticated(false);
   };
-
+  const getAccessToken = (): string | null => {
+    return authService.getAccessToken();
+  }
   const refreshToken = async () => {
     try {
       const refreshToken = authService.getRefreshToken();
@@ -157,6 +160,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         register,
         logout,
         refreshToken,
+        getAccessToken,
       }}
     >
       {children}

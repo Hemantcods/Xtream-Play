@@ -1,4 +1,4 @@
-import { jwtDecode } from "jwt-decode";
+import { jwtDecode, JwtHeader } from "jwt-decode";
 import { refresh } from "next/cache";
 
 interface RegisterData {
@@ -93,7 +93,7 @@ export const authService = {
     localStorage.setItem("refreshToken", token);
   },
 
-  decodeToken: (token: string): any => {
+  decodeToken: (token: string): any=> {
     try {
       return jwtDecode(token);
     } catch (error) {

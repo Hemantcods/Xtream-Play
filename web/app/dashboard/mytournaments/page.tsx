@@ -1,38 +1,43 @@
 'use client';
-import TournamentCard from "@/components/TournamentCard";
+import MyTournamentCard from "@/components/MyTournamentCard";
 import { useAuth } from "@/context/AuthContext";
 import { useEffect, useState } from "react";
-import { getAllTournaments } from "@/lib/services/tournamentService";
+import { getUserTournaments } from "@/lib/services/tournamentService";
 import { Tournament } from "@/types/tournament";
 
-export default function Dashboard() {
-  const { user } = useAuth();
+export default function MyTournaments() {
+  const { isAuthenticated ,getAccessToken} = useAuth();
   const [tournaments, setTournaments] = useState([] as Tournament[]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchTournaments = async () => {
+    const fetchUserTournaments = async () => {
+      if (!isAuthenticated ) {
+        setError("User not authenticated");
+        setLoading(false);
+        return;
+      }
       try {
         setLoading(true);
-        const data = await getAllTournaments();
+        const data = await getUserTournaments(getAccessToken() as string);
         setTournaments(data);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to fetch tournaments");
+        setError(err instanceof Error ? err.message : "Failed to fetch your tournaments");
         setTournaments([]);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchTournaments();
-  }, []);
+    fetchUserTournaments();
+  }, [isAuthenticated, getAccessToken]);
 
   if (loading) {
     return (
       <div className="main flex w-full h-full ">
         <div className="left w-[30%] bg-[#19233A] h-full p-3 gap-y-5 ">
-          <div className="text-4xl text-white font-bold">Active Tournaments</div>
+          <div className="text-4xl text-white font-bold">My Tournaments</div>
           <div className="games flex flex-col py-2">
             <div className="py-3">Game</div>
             <div className="flex flex-wrap w-full gap-3">
@@ -96,7 +101,7 @@ export default function Dashboard() {
         <div className="right w-[70%] h-full ">
           <div className="p-10">
             <div className="Image w-full h-96 overflow-hidden rounded-2xl ">
-              <img src={null} alt="cover"  className="h-full w-full" />
+              <img src="https://imgs.search.brave.com/yQ8EPqKXd9_Jw64QTX_F4ysg6A5L7oqeLeuGIbp7CKk/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9pbWFn/ZXMuc2Z0Y2RuLm5l/dC9pbWFnZXMvdF9h/cHAtY292ZXItcy,/m_X2F1dG8vcC8wNzU1/NTZkNS1kNzA2LTRk/MTctYTc2ZS0xZjQw/M2JlNDZiM2IvMTUx/OTE2OTc4L2ZyZWUt/ZmlyZS1nYW1lbG9v/cC1GRi0xJTIwKDEp/LnBuZw" alt="cover"  className="h-full w-full" />
             </div>
           </div>
         </div>
@@ -108,7 +113,7 @@ export default function Dashboard() {
     return (
       <div className="main flex w-full h-full ">
         <div className="left w-[30%] bg-[#19233A] h-full p-3 gap-y-5 ">
-          <div className="text-4xl text-white font-bold">Active Tournaments</div>
+          <div className="text-4xl text-white font-bold">My Tournaments</div>
           <div className="text-white text-center py-10">{error}</div>
         </div>
         <div className="right w-[70%] h-full ">
@@ -125,7 +130,7 @@ export default function Dashboard() {
   return (
     <div className="main flex w-full h-full ">
       <div className="left w-[30%] bg-[#19233A] h-full p-3 gap-y-5 ">
-        <div className="text-4xl text-white font-bold">Active Tournaments</div>
+        <div className="text-4xl text-white font-bold">My Tournaments</div>
         <div className="games flex flex-col py-2">
           <div className="py-3">Game</div>
           <div className="flex flex-wrap w-full gap-3">
@@ -155,17 +160,14 @@ export default function Dashboard() {
           </div>
         </div>
         <div className="overflow-y-scroll max-h-[60%] gap-y-5 flex flex-col  custom-scrollbar mt-10">
-          {tournaments.map((tou) => (
-            <TournamentCard
-              key={tou._id}
-              tournament={{
-                id: tou._id,
-                name: tou.name,
-                game: tou.game,
-                startDate: new Date(tou.StartTime),
-                prizePool: tou.prizePool,
-                participantCount: 0, // You might want to get this from your data
-              }}
+          {tournaments.map((tournament) => (
+            <MyTournamentCard
+              key={tournament._id}
+              title={tournament.name}
+              perkill={tournament.mode.player === "solo" ? "₹ 10" : tournament.mode.player === "duo" ? "₹ 20" : "₹ 30"} // Example mapping
+              entry={`₹ ${tournament.entryFee}`}
+              prizepool={`₹ ${tournament.prizePool}`}
+              status={tournament.isCompleted ? "Completed" : new Date(tournament.StartTime) > new Date() ? "Upcoming" : "Ongoing"}
             />
           ))}
         </div>

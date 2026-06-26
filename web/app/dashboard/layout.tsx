@@ -12,7 +12,7 @@ import {
   ListIcon,
   XIcon,
 } from "@phosphor-icons/react";
-import Navbar from "@/Components/Navbar";
+import Navbar from "@/components/Navbar";
 
 const Sidebar = [
   {
@@ -25,7 +25,7 @@ const Sidebar = [
     id: 2,
     name: "My Tournaments",
     icon: TrophyIcon,
-    link: "/dashboard/tournaments",
+    link: "/dashboard/mytournaments",
   },
   {
     id: 3,
@@ -77,7 +77,7 @@ export default function DashboardLayout({
         className={`
           fixed z-50 h-full w-64 border-r border-gray-800 bg-[#111622] p-4
           transition-transform duration-300
-          
+
           ${open ? "translate-x-0" : "-translate-x-full"}
 
           md:translate-x-0
@@ -87,7 +87,7 @@ export default function DashboardLayout({
         {/* Close Button Mobile */}
         <div className="flex justify-end md:hidden">
           <button onClick={() => setOpen(false)}>
-            <XIcon size={28} color="white" />
+            <XIcon size={28} />
           </button>
         </div>
 

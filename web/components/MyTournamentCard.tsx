@@ -1,22 +1,16 @@
 import React from "react";
-import Bar from "./Bar";
-export interface TournamentCardProps {
+
+interface MyTournamentCardProps {
   title: string;
   perkill: string;
   entry: string;
   prizepool: string;
   status: string;
 }
-const TournamentCard = ({
-  title,
-  perkill,
-  entry,
-  prizepool,
-  status,
-}: TournamentCardProps) => {
+
+export default function MyTournamentCard({ title, perkill, entry, prizepool, status }: MyTournamentCardProps) {
   return (
     <div className="w-full h-40 border-2 border-white rounded-2xl p-4 flex flex-col">
-
       {/* Title */}
       <div className="text-2xl font-bold text-white">
         {title}
@@ -24,7 +18,6 @@ const TournamentCard = ({
 
       {/* Details */}
       <div className="flex justify-between mt-6 flex-1">
-
         <div className="text-sm text-gray-400 flex flex-col gap-y-3">
           <div>Per Kill</div>
           <div className="text-white text-xl">
@@ -32,7 +25,7 @@ const TournamentCard = ({
           </div>
         </div>
 
-        <Bar />
+        <div className="h-full w-px bg-white" />
 
         <div className="text-sm text-gray-400 flex flex-col gap-y-3">
           <div>Entry Fee</div>
@@ -41,7 +34,7 @@ const TournamentCard = ({
           </div>
         </div>
 
-        <Bar />
+        <div className="h-full w-px bg-white" />
 
         <div className="text-sm text-gray-400 flex flex-col gap-y-3">
           <div>Prize Pool</div>
@@ -50,7 +43,7 @@ const TournamentCard = ({
           </div>
         </div>
 
-        <Bar />
+        <div className="h-full w-px bg-white" />
 
         <div className="text-sm text-gray-400 flex flex-col gap-y-3">
           <div>Status</div>
@@ -58,11 +51,7 @@ const TournamentCard = ({
             {status}
           </div>
         </div>
-
       </div>
-
     </div>
   );
-};
-
-export default TournamentCard;
+}

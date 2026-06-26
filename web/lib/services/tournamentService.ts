@@ -1,6 +1,7 @@
 import { Tournament } from "@/types/tournament";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3000/api";
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3000/api";
 
 interface TournamentResponse {
   success: boolean;
@@ -61,7 +62,7 @@ export const getTournamentById = async (id: string): Promise<Tournament> => {
  */
 export const createTournament = async (
   tournamentData: Omit<Tournament, "_id" | "createdAt" | "updatedAt">,
-  accessToken: string
+  accessToken: string,
 ): Promise<Tournament> => {
   const response = await fetch(`${API_BASE_URL}/tournaments/create`, {
     method: "POST",
@@ -86,7 +87,7 @@ export const createTournament = async (
 export const updateTournament = async (
   id: string,
   tournamentData: Partial<Tournament>,
-  accessToken: string
+  accessToken: string,
 ): Promise<Tournament> => {
   const response = await fetch(`${API_BASE_URL}/tournaments/update/${id}`, {
     method: "PUT",
@@ -110,7 +111,7 @@ export const updateTournament = async (
  */
 export const deleteTournament = async (
   id: string,
-  accessToken: string
+  accessToken: string,
 ): Promise<void> => {
   const response = await fetch(`${API_BASE_URL}/tournaments/delete/${id}`, {
     method: "DELETE",
@@ -130,7 +131,7 @@ export const deleteTournament = async (
 export const startTournament = async (
   id: string,
   roomData: { roomId: string; roomPassword: string },
-  accessToken: string
+  accessToken: string,
 ): Promise<Tournament> => {
   const response = await fetch(`${API_BASE_URL}/tournaments/start/${id}`, {
     method: "POST",
@@ -154,7 +155,7 @@ export const startTournament = async (
  */
 export const endTournament = async (
   id: string,
-  accessToken: string
+  accessToken: string,
 ): Promise<Tournament> => {
   const response = await fetch(`${API_BASE_URL}/tournaments/end/${id}`, {
     method: "POST",
@@ -175,7 +176,7 @@ export const endTournament = async (
  * Get tournament status
  */
 export const getTournamentStatus = async (
-  id: string
+  id: string,
 ): Promise<"upcoming" | "ongoing" | "completed"> => {
   const response = await fetch(`${API_BASE_URL}/tournaments/status/${id}`, {
     method: "GET",
@@ -185,7 +186,9 @@ export const getTournamentStatus = async (
   });
 
   if (!response.ok) {
-    throw new Error(`Failed to fetch tournament status: ${response.statusText}`);
+    throw new Error(
+      `Failed to fetch tournament status: ${response.statusText}`,
+    );
   }
 
   const data: TournamentStatusResponse = await response.json();
@@ -197,7 +200,7 @@ export const getTournamentStatus = async (
  */
 export const joinTournament = async (
   id: string,
-  accessToken: string
+  accessToken: string,
 ): Promise<void> => {
   const response = await fetch(`${API_BASE_URL}/participants/${id}/join`, {
     method: "POST",
@@ -216,7 +219,7 @@ export const joinTournament = async (
  */
 export const leaveTournament = async (
   id: string,
-  accessToken: string
+  accessToken: string,
 ): Promise<void> => {
   const response = await fetch(`${API_BASE_URL}/participants/${id}/leave`, {
     method: "POST",
@@ -233,20 +236,47 @@ export const leaveTournament = async (
 /**
  * Get tournament participants
  */
-export const getTournamentParticipants = async (
-  id: string
-): Promise<any[]> => {
-  const response = await fetch(`${API_BASE_URL}/participants/${id}/participants`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
+export const getTournamentParticipants = async (id: string): Promise<any[]> => {
+  const response = await fetch(
+    `${API_BASE_URL}/participants/${id}/participants`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
     },
-  });
+  );
 
   if (!response.ok) {
-    throw new Error(`Failed to fetch tournament participants: ${response.statusText}`);
+    throw new Error(
+      `Failed to fetch tournament participants: ${response.statusText}`,
+    );
   }
 
   const data: ParticipantResponse = await response.json();
   return data.data;
+};
+
+/**
+ * Get tournaments joined by the current user
+ */
+export const getUserTournaments = async (
+  accessToken: string,
+): Promise<Tournament[]> => {
+  const response = await fetch(`${API_BASE_URL}/tournaments/joined`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch user tournaments: ${response.statusText}`);
+  }
+  const data: TournamentResponse = await response.json();
+  if (!data.data || (Array.isArray(data.data) && data.data.length === 0)) {
+    return [] as Tournament[];
+  }
+  return data.data as Tournament[];
 };
