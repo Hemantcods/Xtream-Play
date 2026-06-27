@@ -2,8 +2,6 @@ import mongoose from "mongoose";
 import { Tournament } from "../tournament/tournament.model.js";
 import { Participant } from "./participant.model.js";
 import { AppError } from "../../utils/AppError.js";
-import { Wallet } from "../wallet/wallet.model.js";
-import { Transaction } from "../transaction/transaction.model.js";
 import {
   checkWalletService,
   creditWalletService,

@@ -2,8 +2,9 @@ import { NextFunction, Request, Response } from "express";
 import { asyncHandler } from "../../utils/AsyncHandler.js";
 import { AppError } from "../../utils/AppError.js";
 import { validateCreateTournament, validateStartTournament } from "./tournament.validator.js";
-import { createTournament, getTournament, getTournaments } from "./tournament.service.js";
+import { createTournament, getTournament, getTournaments, getUserTournamentsService } from "./tournament.service.js";
 import console from "console";
+import { AuthRequest } from "../../middlewares/auth.middleware.js";
 
 export const CreateTournament=asyncHandler(async(req:Request,res:Response,next:NextFunction)=>{
     const error=validateCreateTournament(req.body)
@@ -138,4 +139,22 @@ export const Status=asyncHandler(async(req:Request,res:Response,next:NextFunctio
         success:true,
         status
     })
+})
+export const getUserTournaments=asyncHandler(async(req:AuthRequest,res:Response,next:NextFunction)=>{
+    const userId=req.user?._id
+    if(!userId){
+        throw new AppError('User id is required',400)
+    }
+    const tournaments=await getUserTournamentsService(userId)
+    if(!tournaments || tournaments.length === 0) {
+        res.status(200).json({
+            success:true,
+            message:'No tournaments found'
+        })
+    }
+    res.status(200).json({
+        success:true,
+        data:tournaments
+    })
+
 })

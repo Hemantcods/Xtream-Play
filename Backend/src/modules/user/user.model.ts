@@ -12,6 +12,11 @@ export interface IUser extends Document {
   googleId?: string;
   deviceToken?: string;
   refreshToken?: string;
+  // Tournament Stats
+  totalPoints: number;
+  totalEarnings: number;
+  totalMatches: number;
+  totalWins: number;
   //   methods/functions
   comparePassword(candidate: string): Promise<boolean>;
 }
@@ -36,9 +41,9 @@ const userSchema = new Schema<IUser>(
       type: Boolean,
       default: false,
     },
-    isEmailVerified:{
-      type:Boolean,
-      default:false
+    isEmailVerified: {
+      type: Boolean,
+      default: false,
     },
     password: {
       type: String,
@@ -50,25 +55,25 @@ const userSchema = new Schema<IUser>(
       enum: ["user", "admin", "moderator"],
     },
     // select the provider
-    provider:{
-      type:String,
-      enum:["local","google"]
+    provider: {
+      type: String,
+      enum: ["local", "google"],
     },
-    googleId:{
-      type:String,
-      default:null,
-      select:false
+    googleId: {
+      type: String,
+      default: null,
+      select: false,
     },
-    deviceToken:{
-      type:String,
-      default:null,
-      select:false
+    deviceToken: {
+      type: String,
+      default: null,
+      select: false,
     },
-    refreshToken:{
-      type:String,
-      default:null,
-      select:false
-    }
+    refreshToken: {
+      type: String,
+      default: null,
+      select: false,
+    },
   },
   { timestamps: true },
 );
@@ -77,7 +82,7 @@ const userSchema = new Schema<IUser>(
 userSchema.pre("save", async function () {
   if (!this.isModified("password")) return;
   const saltRounds = 10;
-  if(this.password){
+  if (this.password) {
     this.password = await bcrypt.hash(this.password, saltRounds);
   }
 });

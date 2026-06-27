@@ -4,11 +4,13 @@ import { Document } from "mongoose";
 export interface IParticipant extends Document {
   userId: mongoose.Types.ObjectId;
   tournamentId: mongoose.Types.ObjectId;
+  resultStatus:"PENDING"|"DECLARED"
   stats?: {
     kills: number;
     rank: number;
+    points?: number;
   };
-  reward?: number;
+  earnings?: number;
 }
 
 const ParticipantSchema = new Schema<IParticipant>({
@@ -22,6 +24,11 @@ const ParticipantSchema = new Schema<IParticipant>({
     ref: "Tournament",
     required: true,
   },
+  resultStatus:{
+    type:String,
+    enum:["PENDING","DECLARED"],
+    default:"PENDING"
+  },
   stats: {
     kills: {
       type: Number,
@@ -31,8 +38,12 @@ const ParticipantSchema = new Schema<IParticipant>({
       type: Number,
       default: null,
     },
+    points: {
+      type: Number,
+      default: 0,
+    },
   },
-  reward: {
+  earnings: {
     type: Number,
     default: 0,
   },

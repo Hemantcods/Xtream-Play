@@ -1,3 +1,5 @@
+import { Types } from "mongoose";
+import { Participant } from "../participant/participant.model.js";
 import { Tournament } from "./tournament.model.js";
 
 export const createTournament = async (data: any, creator: any) => {
@@ -32,3 +34,7 @@ export const getTournament = async (id: string) => {
   const tournament = await Tournament.findOne({ id });
   return tournament;
 };
+
+export const getUserTournamentsService=async(userId:Types.ObjectId)=>{
+  const tournaments=await Participant.find({userId}as any).populate('tournamentId')
+  return tournaments.map(participant=>participant.tournamentId)}
