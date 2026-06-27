@@ -1,9 +1,19 @@
+"use client";
 import LeaderboardTable from "@/components/Leaderboard";
-import { Table } from "@/components/ui/table";
-import { ChartNoAxesCombined, Crown } from "lucide-react";
-import React from "react";
-const page = () => {
-    
+import { userService } from "@/lib/services/userService";
+import { ChartNoAxesCombined, Crown, Medal, Trophy } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { LeaderBoard } from "@/lib/services/userService";
+const Page = () => {
+  const [Board, setBoard] = useState<LeaderBoard[]|[]>([]);
+  useEffect(() => {
+    const fetchLeaderboard = async () => {
+      const data = await userService.getLeaderBoard();
+      console.log(data)
+      setBoard(data);
+    };
+    fetchLeaderboard();
+  });
   return (
     <div className="h-full bg-white flex flex-col w-full text-black gap-10 content-center p-10 ">
       <div className=" w-full h-[35vh] flex">
@@ -38,9 +48,10 @@ const page = () => {
             <div className="title text-4xl font-extrabold">Leaderboard</div>
             <div className="bg-red-500 w-20 h-2 flex rounded-full"></div>
             <div className="text-xl font-extralight">
-                <p>See who's on top! Compete, earn points , <br />
-                    and claim your place in the leaderboard.
-                </p>
+              <p>
+                See who&apos;s on top! Compete, earn points , <br />
+                and claim your place in the leaderboard.
+              </p>
             </div>
           </div>
         </div>
@@ -50,24 +61,24 @@ const page = () => {
             <div className="w-full flex text-2xl font-bold">Top Performers</div>
           </div>
           <div className=" flex justify-center gap-5 w-full h-full">
-            <div className="bar flex flex-col justify-end w-15">
-              <div>Ankush</div>
+            <div className="bar flex flex-col justify-end w-15 content-center text-center">
+              <div>{Board[1]?.name}</div>
               <div className="flex w-full justify-center">
-                <Crown fill="yellow" />
+                <Medal className="h-5 w-5 text-gray-400" />
               </div>
               <div className="h-[60%] bg-red-500 "></div>
             </div>
-            <div className="bar flex flex-col justify-end w-15">
-              <div>Hemant</div>
-              <div className="flex w-full justify-center">
-                <Crown fill="yellow" />
+            <div className="bar flex flex-col justify-end w-15 content-center text-center">
+              <div>{Board[0]?.name}</div>
+              <div className="flex w-full justify-center ">
+                <Crown className="h-5 w-5 text-yellow-500 fill-yellow-500" />
               </div>
               <div className="h-[80%] bg-red-500 "></div>
             </div>
-            <div className="bar flex flex-col justify-end w-15">
-              <div>Nitin</div>
+            <div className="bar flex flex-col justify-end w-15 content-center text-center">
+              <div>{Board[2]?.name}</div>
               <div className="flex w-full justify-center">
-                <Crown fill="yellow" />
+                <Trophy className="h-5 w-5 text-amber-700" />
               </div>
               <div className="h-[40%]  bg-red-500 "></div>
             </div>
@@ -75,10 +86,10 @@ const page = () => {
         </div>
       </div>
       <div>
-        <LeaderboardTable/>
+        <LeaderboardTable Board={Board} />
       </div>
     </div>
   );
 };
 
-export default page;
+export default Page;

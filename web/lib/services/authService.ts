@@ -1,6 +1,4 @@
-import { jwtDecode, JwtHeader } from "jwt-decode";
-import { refresh } from "next/cache";
-
+import { jwtDecode } from "jwt-decode";
 interface RegisterData {
   name: string;
   email?: string;

@@ -10,45 +10,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Crown, Medal, Trophy } from "lucide-react";
-
-const players = [
-  {
-    rank: 1,
-    name: "Hemant",
-    team: "Phoenix",
-    matches: 12,
-    wins: 10,
-    winRate: "83%",
-    points: 1890,
-  },
-  {
-    rank: 2,
-    name: "Ankush",
-    team: "Titans",
-    matches: 12,
-    wins: 9,
-    winRate: "75%",
-    points: 1760,
-  },
-  {
-    rank: 3,
-    name: "Nitin",
-    team: "Warriors",
-    matches: 12,
-    wins: 8,
-    winRate: "66%",
-    points: 1600,
-  },
-  {
-    rank: 4,
-    name: "Rohit",
-    team: "Eagles",
-    matches: 11,
-    wins: 7,
-    winRate: "63%",
-    points: 1480,
-  },
-];
+import { LeaderBoard } from "@/lib/services/userService";
 
 const RankIcon = ({ rank }: { rank: number }) => {
   if (rank === 1)
@@ -61,7 +23,7 @@ const RankIcon = ({ rank }: { rank: number }) => {
   return <span>{rank}</span>;
 };
 
-export default function LeaderboardTable() {
+export default function LeaderboardTable({ Board }: { Board: LeaderBoard[] }) {
   return (
     <div className="rounded-3xl border bg-white shadow-xl px-10">
       <div className="border-b px-6 py-5">
@@ -76,16 +38,14 @@ export default function LeaderboardTable() {
           <TableRow>
             <TableHead className="w-20">Rank</TableHead>
             <TableHead>Player</TableHead>
-            <TableHead>Team</TableHead>
-            <TableHead>Matches</TableHead>
             <TableHead>Wins</TableHead>
-            <TableHead>Win Rate</TableHead>
+            <TableHead>Total Earning</TableHead>
             <TableHead className="text-right">Points</TableHead>
           </TableRow>
         </TableHeader>
 
         <TableBody>
-          {players.map((player) => (
+          {Board.map((player) => (
             <TableRow
               key={player.rank}
               className="hover:bg-red-50 transition-colors"
@@ -97,7 +57,9 @@ export default function LeaderboardTable() {
               <TableCell>
                 <div className="flex items-center gap-3">
                   <Avatar>
-                    <AvatarFallback>{player.name.charAt(0)}</AvatarFallback>
+                    <AvatarFallback>
+                      {player.name.charAt(0).toUpperCase()}
+                    </AvatarFallback>
                   </Avatar>
 
                   <div className="font-semibold">{player.name}</div>
@@ -107,19 +69,12 @@ export default function LeaderboardTable() {
                   )}
                 </div>
               </TableCell>
+              <TableCell>{player.totalWins}</TableCell>
 
-              <TableCell>{player.team}</TableCell>
-
-              <TableCell>{player.matches}</TableCell>
-
-              <TableCell>{player.wins}</TableCell>
-
-              <TableCell>
-                <Badge variant="secondary">{player.winRate}</Badge>
-              </TableCell>
+              <TableCell>{player.totalEarning}</TableCell>
 
               <TableCell className="text-right font-bold text-red-600">
-                {player.points}
+                {player.totalPoints}
               </TableCell>
             </TableRow>
           ))}
