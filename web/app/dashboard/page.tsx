@@ -96,7 +96,7 @@ export default function Dashboard() {
         <div className="right w-[70%] h-full ">
           <div className="p-10">
             <div className="Image w-full h-96 overflow-hidden rounded-2xl ">
-              <img src={null} alt="cover"  className="h-full w-full" />
+              <img src='' alt="cover"  className="h-full w-full" />
             </div>
           </div>
         </div>
