@@ -12,7 +12,6 @@ import {
   ListIcon,
   XIcon,
 } from "@phosphor-icons/react";
-import Navbar from "@/components/Navbar";
 
 const Sidebar = [
   {
@@ -113,11 +112,8 @@ export default function DashboardLayout({
         </div>
       </aside>
       <div className="flex flex-col h-full w-full flex-1">
-        <div>
-          <Navbar />
-        </div>
         {/* Main */}
-        <main className="flex-1 w-full h-full text-white md:ml-0">{children}</main>
+        <main className="flex-1 w-full min-h-screen overflow-y-scroll text-white md:ml-0 scrollbar-none">{children}</main>
       </div>
     </div>
   );
