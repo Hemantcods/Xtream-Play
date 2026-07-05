@@ -39,7 +39,8 @@ export const getTournamentById=asyncHandler(async(req:Request,res:Response,next:
         throw new AppError('Tournament id is required',400)
     }
     console.log(id)
-    const tournament=await getTournament(id as string)
+  const tournament = await getTournament(id as string)
+  console.log(tournament)
     if(!tournament){
         throw new AppError('Tournament not found',404)
     }
