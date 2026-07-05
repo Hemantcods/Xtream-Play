@@ -1,7 +1,13 @@
 import PrizePoolCard from "@/components/PrizePoolCard";
 import RegisteredPlayersCard from "@/components/RegisteredPlayerCard";
 import RegistrationCard from "@/components/RegistrationCard";
+import TournamentDetailsCard, {
+  TournamentOverview,
+} from "@/components/TournamentDetailsCard";
 import TournamentTop from "@/components/TournamentTop";
+import { getTournamentById } from "@/lib/services/tournamentService";
+import { Tournament } from "@/types/tournament";
+
 interface PageProps {
   params: Promise<{
     id: string;
@@ -10,40 +16,26 @@ interface PageProps {
 
 export default async function TournamentPage({ params }: PageProps) {
   const { id } = await params;
-  console.log(id);
+  let TournamentData;
+  try {
+    TournamentData = await getTournamentById(id);
+  } catch (error) {
+    console.log(error);
+  }
+  console.log(TournamentData);
   return (
-    <div className=" flex flex-col min-h-screen mx-10 mt-10 gap-5">
+    <div className=" flex flex-col min-h-screen mx-4 mt-6 lg:mx-10 lg:mt-10 gap-5">
       <TournamentTop image="/hero.png" />
-      <div className="layout flex h-full gap-4">
-        <div className="right h-full flex flex-col flex-7 ">
-          <div className="overview h-[30vh] p-5 flex flex-col gap-5 bg-[#13192A] rounded-2xl">
-            <h1 className="text-xl">Tournament Overview</h1>
-            <p>Gear up for the battle</p>
-            <div className="cards flex gap-5" >
-              <div className="h-35 w-35  items-center justify-center flex flex-col gap-5 bg-[#111622] rounded-2xl">
-                <div className="text-2xl text-white/50">Game</div>
-                <div>BGMI</div>
-              </div>
-              <div className="h-35 w-35  items-center justify-center flex flex-col gap-5 bg-[#111622] rounded-2xl">
-                <div className="text-2xl text-white/50">Game</div>
-                <div>BGMI</div>
-              </div>
-              <div className="h-35 w-35  items-center justify-center flex flex-col gap-5 bg-[#111622] rounded-2xl">
-                <div className="text-2xl text-white/50">Game</div>
-                <div>BGMI</div>
-              </div>
-              <div className="h-35 w-35  items-center justify-center flex flex-col gap-5 bg-[#111622] rounded-2xl">
-                <div className="text-2xl text-white/50">Game</div>
-                <div>BGMI</div>
-              </div>
-            </div>
-          </div>
-          <RegisteredPlayersCard registered={17} total={100} />
-          <div className="details "></div>
+      <div className="flex flex-col gap-4 lg:flex-row">
+        <div className="order-2 lg:order-1 flex flex-col gap-4 lg:flex-[7]">
+          <TournamentOverview tournament={TournamentData as Tournament} />
+          <RegisteredPlayersCard registered={TournamentData?.registeredPlayers as number} total={TournamentData?.maxPlayers as number} />
+          <TournamentDetailsCard tournament={TournamentData as Tournament} />
         </div>
-        <div className="left flex flex-col flex-3 shrink-0 gap-3">
-          <RegistrationCard />
-          <PrizePoolCard/>
+
+        <div className="order-1 lg:order-2 flex flex-col gap-4 lg:flex-[3]">
+          <RegistrationCard endDate={TournamentData?.StartTime} />
+          <PrizePoolCard tournament={TournamentData as Tournament} />
         </div>
       </div>
     </div>

@@ -16,11 +16,13 @@ export interface Tournament {
     second: number;
     third: number;
   };
+  PerElimination: number;
   isCompleted?: boolean;
   roomId?: string;
   roomPassword?: string;
   createdAt?: string;
   updatedAt?: string;
+  registeredPlayers?:number
 }
 
 export interface TournamentCreateData {
@@ -40,9 +42,10 @@ export interface TournamentCreateData {
     second: number;
     third: number;
   };
+  PerElimination?:number;
 }
 
-export interface TournamentUpdateData extends Partial<TournamentCreateData> {}
+// export interface TournamentUpdateData extends Partial<TournamentCreateData> {}
 
 export interface AuthResponse {
   success: boolean;

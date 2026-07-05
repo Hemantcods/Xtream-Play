@@ -154,7 +154,7 @@ export default function Dashboard() {
             </div>
           </div>
         </div>
-        <div className="overflow-y-scroll max-h-[60%] gap-y-5 flex flex-col  custom-scrollbar mt-10">
+        {/*<div className="overflow-y-scroll max-h-[60%] gap-y-5 flex flex-col  custom-scrollbar mt-10">
           {tournaments.map((tou) => (
             <TournamentCard
               key={tou._id}
@@ -164,6 +164,21 @@ export default function Dashboard() {
                 game: tou.game,
                 startDate: new Date(tou.StartTime),
                 prizePool: tou.prizePool,
+                participantCount: 0, // You might want to get this from your data
+              }}
+            />
+          ))}
+        </div>*/}
+        <div className="gap-5 overflow-y-scroll max-h-[60%] gap-y-5 flex flex-col  custom-scrollbar mt-10">
+          {tournaments.map((tournament) => (
+            <TournamentCard
+              key={tournament._id}
+              tournament={{
+                id: tournament._id,
+                name: tournament.name,
+                game: tournament.game,
+                startDate: new Date(tournament.StartTime),
+                prizePool: tournament.prizePool,
                 participantCount: 0, // You might want to get this from your data
               }}
             />

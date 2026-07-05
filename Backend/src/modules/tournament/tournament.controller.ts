@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { asyncHandler } from "../../utils/AsyncHandler.js";
 import { AppError } from "../../utils/AppError.js";
 import { validateCreateTournament, validateStartTournament } from "./tournament.validator.js";
-import { createTournament, getTournament, getTournaments, getUserTournamentsService } from "./tournament.service.js";
+import { createTournament, getRegisteredPlayer, getTournament, getTournaments, getUserTournamentsService } from "./tournament.service.js";
 import console from "console";
 import { AuthRequest } from "../../middlewares/auth.middleware.js";
 
@@ -40,13 +40,14 @@ export const getTournamentById=asyncHandler(async(req:Request,res:Response,next:
     }
     console.log(id)
   const tournament = await getTournament(id as string)
+  const registeredplayer = await getRegisteredPlayer(id as string)
   console.log(tournament)
     if(!tournament){
         throw new AppError('Tournament not found',404)
     }
     res.status(200).json({
-        success:true,
-        tournament
+      success: true,
+      data:{...tournament.toObject(),registeredPlayers:registeredplayer}
     })
 })
 

@@ -1,7 +1,6 @@
 import { Tournament } from "@/types/tournament";
 
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3001/api";
+const API_BASE_URL = "http://localhost:3001/api";
 
 interface TournamentResponse {
   success: boolean;
@@ -52,8 +51,7 @@ export const getTournamentById = async (id: string): Promise<Tournament> => {
   if (!response.ok) {
     throw new Error(`Failed to fetch tournament: ${response.statusText}`);
   }
-
-  const data: TournamentResponse = await response.json();
+  const data: TournamentResponse = await response.json()
   return data.data as Tournament;
 };
 

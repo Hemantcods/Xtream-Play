@@ -5,7 +5,7 @@ import { Card } from "./ui/card";
 import Countdown from "react-countdown";
 
 interface CountdownProps {
-  endDate: Date | string;
+  endDate: Date | string ;
 }
 
 function TimeBox({ value, label }: { value: number; label: string }) {
@@ -16,7 +16,7 @@ function TimeBox({ value, label }: { value: number; label: string }) {
     </div>
   );
 }
-export default  function RegistrationCard() {
+export default  function RegistrationCard({endDate}:CountdownProps) {
   return (
     <Card className="p-5 space-y-5 bg-[#13192A] text-white">
       <h3 className="font-semibold">Registration</h3>
@@ -26,7 +26,7 @@ export default  function RegistrationCard() {
           Registration Ends In
         </p>
 
-        <RegistrationCountdown endDate="2026-12-31T23:59:59" />
+        <RegistrationCountdown endDate={endDate} />
       </div>
 
       <Button className="w-full bg-red-500">Apply Now</Button>

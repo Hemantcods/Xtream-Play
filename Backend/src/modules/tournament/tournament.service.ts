@@ -31,9 +31,18 @@ export const getTournament = async (id: string) => {
   if (!id) {
     throw new Error("Tournament id is required");
   }
-  const tournament = await Tournament.findOne({ id });
+  const tournament = await Tournament.findOne({ _id:id });
   return tournament;
 };
+export const getRegisteredPlayer = async (tournament_id: string) => {
+  if (!tournament_id) {
+    throw new Error("Tournament id is required")
+  }
+  const registeredPlayer = await Participant.countDocuments({
+    tournamentId:tournament_id
+  })
+  return registeredPlayer
+}
 
 export const getUserTournamentsService=async(userId:Types.ObjectId)=>{
   const tournaments=await Participant.find({userId}as any).populate('tournamentId')

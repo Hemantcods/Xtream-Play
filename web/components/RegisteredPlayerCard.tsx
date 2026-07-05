@@ -23,8 +23,23 @@ export default function RegisteredPlayersCard({
         <div className="text-2xl text-gray-300">/ {total} Teams Registered</div>
       </div>
       <div className="flex items-center gap-4">
-        <Progress value={percentage} className="h-4 flex-1 bg-red-500" />
+        <Progress value={percentage} indicatorClassName="bg-red-500" className="h-4 flex-1" />
         <span className="text-xl font-semibold">{percentage}%</span>
+      </div>
+      <div className="flex">
+        <div className="mt-3 flex items-center gap-8 text-sm">
+          <div className="flex items-center gap-2">
+            <span className="h-2.5 w-2.5 rounded-full bg-green-500" />
+            <span className="font-semibold text-green-500">{registered}</span>
+            <span className="text-muted-foreground">Joined</span>
+          </div>
+        
+          <div className="flex items-center gap-2">
+            <span className="h-2.5 w-2.5 rounded-full bg-slate-600" />
+            <span className="font-semibold text-slate-400">{spotsLeft}</span>
+            <span className="text-muted-foreground">Spots Left</span>
+          </div>
+        </div>
       </div>
     </Card>
   );

@@ -1,122 +1,129 @@
-import mongoose, { Document, ObjectId, Schema } from 'mongoose';
+import mongoose, { Document, ObjectId, Schema } from "mongoose";
 
 export enum Game {
-    FREEFIRE = "freefire",
-    BGMI = "bgmi",
-    COD = "cod",
-    OTHER = "other"
+  FREEFIRE = "freefire",
+  BGMI = "bgmi",
+  COD = "cod",
+  OTHER = "other",
 }
 
 export enum PlayerMode {
-    SOLO = "solo",
-    DUO = "duo",
-    SQUAD = "squad"
+  SOLO = "solo",
+  DUO = "duo",
+  SQUAD = "squad",
 }
 
-export interface ITournament extends Document{
-    name:string,
-    game: Game,
-    entryFee:number,
-    prizePool:number,
-    mode:{
-        map:string,
-        player: PlayerMode,
-        type:string
-    }
-    roomId?:string,
-    roomPassword?:string,
-    StartTime:Date,
-    winner?:ObjectId,
-    maxPlayers:number,
-    createdBy?:ObjectId,
-    PlacementPrize:{
-        "first":number,
-        "second":number,
-        "third":number
-    },
-    isCompleted?:boolean
+export interface ITournament extends Document {
+  name: string;
+  game: Game;
+  entryFee: number;
+  prizePool: number;
+  mode: {
+    map: string;
+    player: PlayerMode;
+    type: string;
+  };
+  roomId?: string;
+  roomPassword?: string;
+  StartTime: Date;
+  winner?: ObjectId;
+  maxPlayers: number;
+  createdBy?: ObjectId;
+  PlacementPrize: {
+    first: number;
+    second: number;
+    third: number;
+  };
+  PerEliminationPrize?: number;
+  isCompleted?: boolean;
 }
 
-const TournamentSchema=new mongoose.Schema<ITournament>({
-    name:{
-        type:String,
-        required:true
+const TournamentSchema = new mongoose.Schema<ITournament>(
+  {
+    name: {
+      type: String,
+      required: true,
     },
-    game:{
+    game: {
+      type: String,
+      enum: Object.values(Game),
+      required: true,
+    },
+    entryFee: {
+      type: Number,
+      required: true,
+      default: 0,
+    },
+    prizePool: {
+      type: Number,
+      required: true,
+      default: 0,
+    },
+    mode: {
+      map: {
         type: String,
-        enum: Object.values(Game),
-        required:true
-    },  
-    entryFee:{
-        type:Number,
-        required:true,
-        default:0
+        default: "Bermuda",
+      },
+      player: {
+        type: String,
+        enum: Object.values(PlayerMode),
+        required: true,
+      },
+      type: {
+        type: String,
+        required: true,
+      },
     },
-    prizePool:{
-        type:Number,
-        required:true,
-        default:0
+    roomId: {
+      type: String,
+      default: "",
     },
-    mode:{
-        map:{
-            type:String,
-            default:"Bermuda"
-        },
-        player:{
-            type:String,
-            enum: Object.values(PlayerMode),
-            required:true
-        },
-        type:{
-            type:String,
-            required:true,
-        }
+    roomPassword: {
+      type: String,
+      default: "",
     },
-    roomId:{
-        type:String,
-        default:""
+    StartTime: {
+      type: Date,
+      required: true,
     },
-    roomPassword:{
-        type:String,
-        default:""
+    winner: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      default: null,
     },
-    StartTime:{
-        type:Date,
-        required:true
+    maxPlayers: {
+      type: Number,
+      required: true,
     },
-    winner:{
-        type:Schema.Types.ObjectId,
-        ref:"User",
-        default:null
+    createdBy: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      // required:true
     },
-    maxPlayers:{
-        type:Number,
-        required:true
+    PlacementPrize: {
+      first: {
+        type: Number,
+        default: 0,
+      },
+      second: {
+        type: Number,
+        default: 0,
+      },
+      third: {
+        type: Number,
+        default: 0,
+      },
     },
-    createdBy:{
-        type:Schema.Types.ObjectId,
-        ref:"User",
-        // required:true
+    PerEliminationPrize: {
+      type: Number,
+      default: 0,
     },
-    PlacementPrize:{
-        first:{
-            type:Number,
-            default:0
-        },
-        second:{
-            type:Number,
-            default:0
-        },
-        third:{
-            type:Number,
-            default:0
-        }
+    isCompleted: {
+      type: Boolean,
+      default: false,
     },
-    isCompleted:{
-        type:Boolean,
-        default:false
-    }
-}, { timestamps: true })
+  },
+  { timestamps: true },
+);
 
-
-export const Tournament=mongoose.model("Tournament",TournamentSchema)
+export const Tournament = mongoose.model("Tournament", TournamentSchema);
