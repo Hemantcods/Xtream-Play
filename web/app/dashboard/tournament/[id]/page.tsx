@@ -34,7 +34,7 @@ export default async function TournamentPage({ params }: PageProps) {
         </div>
 
         <div className="order-1 lg:order-2 flex flex-col gap-4 lg:flex-[3]">
-          <RegistrationCard endDate={TournamentData?.StartTime} />
+          <RegistrationCard endDate={TournamentData?.StartTime as string} />
           <PrizePoolCard tournament={TournamentData as Tournament} />
         </div>
       </div>
