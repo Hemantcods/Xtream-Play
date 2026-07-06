@@ -3,11 +3,17 @@ import { Share2 } from "lucide-react";
 import { Button } from "./ui/button";
 import { Card } from "./ui/card";
 import Countdown from "react-countdown";
+import { toast } from "sonner";
+import { useState } from "react";
+import RegistrationDialog from './RegisterationDialog'
+import { Tournament } from "@/types/tournament";
 
 interface CountdownProps {
-  endDate: Date | string ;
+  endDate: Date | string;
 }
-
+interface TournamentProps{
+  tournamentData:Tournament
+}
 function TimeBox({ value, label }: { value: number; label: string }) {
   return (
     <div className="rounded-lg bg-zinc-900 p-3 text-center text-white">
@@ -16,8 +22,14 @@ function TimeBox({ value, label }: { value: number; label: string }) {
     </div>
   );
 }
-export default  function RegistrationCard({endDate}:CountdownProps) {
+export default function RegistrationCard({ tournamentData }: TournamentProps) {
+  const HandleClick = async() => {
+    await navigator.clipboard.writeText(window.location.href)
+    toast.success("Tournament Link Copied")
+  }
+  const [open,Setopen]=useState(true)
   return (
+    <>
     <Card className="p-5 space-y-5 bg-[#13192A] text-white">
       <h3 className="font-semibold">Registration</h3>
 
@@ -26,16 +38,18 @@ export default  function RegistrationCard({endDate}:CountdownProps) {
           Registration Ends In
         </p>
 
-        <RegistrationCountdown endDate={endDate} />
+        <RegistrationCountdown endDate={tournamentData.StartTime} />
       </div>
 
-      <Button className="w-full bg-red-500">Apply Now</Button>
-
-      <Button variant="outline" className="w-full text-black">
+      <Button className="w-full bg-red-500" onClick={()=>Setopen(true)}>Apply Now</Button>
+      
+      <Button variant="outline" className="w-full text-black " onClick={()=>{HandleClick()}}>
         <Share2 className="mr-2 h-4 w-4" />
         Share Tournament
       </Button>
     </Card>
+      <RegistrationDialog open={ open} onOpenChange={Setopen} tournament={tournamentData}/>
+    </>
   );
 }
 function RegistrationCountdown({

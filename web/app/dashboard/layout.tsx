@@ -12,6 +12,7 @@ import {
   ListIcon,
   XIcon,
 } from "@phosphor-icons/react";
+import { Toaster } from "@/components/ui/sonner";
 
 const Sidebar = [
   {
@@ -114,6 +115,7 @@ export default function DashboardLayout({
       <div className="flex flex-col h-full w-full flex-1">
         {/* Main */}
         <main className="flex-1 w-full min-h-screen overflow-y-scroll text-white md:ml-0 scrollbar-none">{children}</main>
+        <Toaster/>
       </div>
     </div>
   );

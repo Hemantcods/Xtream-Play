@@ -8,6 +8,7 @@ import TournamentTop from "@/components/TournamentTop";
 import { getTournamentById } from "@/lib/services/tournamentService";
 import { Tournament } from "@/types/tournament";
 import { notFound } from "next/navigation";
+import { toast } from "sonner";
 
 interface PageProps {
   params: Promise<{
@@ -37,7 +38,7 @@ export default async function TournamentPage({ params }: PageProps) {
         </div>
 
         <div className="order-1 lg:order-2 flex flex-col gap-4 lg:flex-[3]">
-          <RegistrationCard endDate={TournamentData?.StartTime as string} />
+          <RegistrationCard tournamentData={TournamentData}  />
           <PrizePoolCard tournament={TournamentData} />
         </div>
       </div>
