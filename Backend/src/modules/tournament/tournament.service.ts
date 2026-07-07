@@ -32,7 +32,7 @@ export const getTournament = async (id: string) => {
   if (!id) {
     throw new Error("Tournament id is required");
   }
-  const tournament = await Tournament.findOne({ _id:id });
+  const tournament = await Tournament.findOne({ _id:id }).select('-roomId -roomPassword');
   return tournament;
 };
 export const getRegisteredPlayer = async (tournament_id: string,format:PlayerMode) => {

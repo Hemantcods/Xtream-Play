@@ -6,7 +6,7 @@ interface ITeam extends Document {
   captainId: mongoose.Types.ObjectId;
   teamName: string;
   inviteCode: string;
-  mode: "SOLO" | "DUO" | "SQUARD";
+  mode: "SOLO" | "DUO" | "SQUAD";
   maxMembers: number;
   members: Object[];
   paymentStatus: "PENDING" | "PAID";

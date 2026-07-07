@@ -13,7 +13,7 @@ export const getReservedPlayerCount = async (
   return teamCount * teamSize;
 };
 
-export const getCountByTeamType = (type:PlayerMode) => {
+export function getCountByTeamType(type:PlayerMode){
   if (type==PlayerMode.SOLO) {
     return 1
   }

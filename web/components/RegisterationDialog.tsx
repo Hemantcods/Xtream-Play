@@ -8,8 +8,9 @@ import { Button } from "./ui/button"
 import { Separator } from "./ui/separator"
 import { Checkbox } from "./ui/checkbox"
 import { Label } from "./ui/label"
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "./ui/select"
-import { Trophy, Coins, Gamepad2, Users, UserCheck, Wallet, AlertTriangle } from "lucide-react"
+import { Input } from "./ui/input"
+import { toast } from "sonner"
+import { Trophy, Coins, Gamepad2, Users, UserCheck, Wallet, AlertTriangle, Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 interface Props {
@@ -76,13 +77,56 @@ export default function RegistrationDialog({
   onOpenChange,
   tournament,
 }: Props) {
+  const [inGameName, setInGameName] = useState("")
+  const [uid, setUid] = useState("")
+  const [teamName, setTeamName] = useState("")
   const [agreed, setAgreed] = useState(false)
-  const [selectedTeam, setSelectedTeam] = useState("")
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [errors, setErrors] = useState<Record<string, string>>({})
 
+  const isSolo = tournament.mode.player === "solo"
   const walletBalance = 500
   const entryFee = tournament.entryFee
   const remainingBalance = walletBalance - entryFee
   const hasInsufficientFunds = remainingBalance < 0
+
+  const isFormValid = agreed && inGameName.trim() && uid.trim() && (isSolo || teamName.trim()) && !hasInsufficientFunds
+
+  const validate = () => {
+    const newErrors: Record<string, string> = {}
+    if (!inGameName.trim()) newErrors.inGameName = "In-Game name is required"
+    if (!uid.trim()) newErrors.uid = "Game UID is required"
+    if (!isSolo && !teamName.trim()) newErrors.teamName = "Team name is required"
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
+
+  const handleRegister = async () => {
+    if (!validate()) return
+    setIsSubmitting(true)
+    try {
+      const res = await fetch(`/api/tournaments/${tournament._id}/join`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          uid: uid.trim(),
+          inGameName: inGameName.trim(),
+          teamName: isSolo ? "" : teamName.trim(),
+        }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        toast.error(data.message || "Failed to register")
+        return
+      }
+      toast.success("Successfully registered!")
+      onOpenChange(false)
+    } catch {
+      toast.error("Something went wrong. Please try again.")
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -115,20 +159,45 @@ export default function RegistrationDialog({
 
           <Separator />
 
-          <div className="space-y-2">
-            <Label htmlFor="team-select">Select Team</Label>
-            <Select value={selectedTeam} onValueChange={setSelectedTeam}>
-              <SelectTrigger id="team-select">
-                <SelectValue placeholder="Select Team" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="team-alpha">Team Alpha</SelectItem>
-                <SelectItem value="team-beta">Team Beta</SelectItem>
-                <SelectItem value="team-gamma">Team Gamma</SelectItem>
-                <SelectItem value="team-delta">Team Delta</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+          <Card>
+            <CardHeader>
+              <CardTitle>Player Details</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {!isSolo && (
+                <div className="space-y-2">
+                  <Label htmlFor="team-name">Team Name</Label>
+                  <Input
+                    id="team-name"
+                    placeholder="Enter your team name"
+                    value={teamName}
+                    onChange={(e) => { setTeamName(e.target.value); setErrors((p) => ({ ...p, teamName: "" })) }}
+                  />
+                  {errors.teamName && <p className="text-xs text-red-400">{errors.teamName}</p>}
+                </div>
+              )}
+              <div className="space-y-2">
+                <Label htmlFor="ign">In-Game Name</Label>
+                <Input
+                  id="ign"
+                  placeholder="Enter your in-game name"
+                  value={inGameName}
+                  onChange={(e) => { setInGameName(e.target.value); setErrors((p) => ({ ...p, inGameName: "" })) }}
+                />
+                {errors.inGameName && <p className="text-xs text-red-400">{errors.inGameName}</p>}
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="uid">Game UID</Label>
+                <Input
+                  id="uid"
+                  placeholder="Enter your game UID"
+                  value={uid}
+                  onChange={(e) => { setUid(e.target.value); setErrors((p) => ({ ...p, uid: "" })) }}
+                />
+                {errors.uid && <p className="text-xs text-red-400">{errors.uid}</p>}
+              </div>
+            </CardContent>
+          </Card>
 
           <Separator />
 
@@ -189,11 +258,12 @@ export default function RegistrationDialog({
           <Separator />
 
           <div className="flex items-center justify-between">
-            <Button variant="outline" onClick={() => onOpenChange(false)}>
+            <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isSubmitting}>
               Cancel
             </Button>
-            <Button disabled={!agreed}>
-              Register
+            <Button onClick={handleRegister} disabled={!isFormValid || isSubmitting}>
+              {isSubmitting && <Loader2 className="mr-2 size-4 animate-spin" />}
+              {isSubmitting ? "Registering..." : "Register"}
             </Button>
           </div>
         </div>
