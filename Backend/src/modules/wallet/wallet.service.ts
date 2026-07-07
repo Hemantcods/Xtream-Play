@@ -3,6 +3,18 @@ import { Wallet } from "./wallet.model.js";
 import { Transaction } from "../transaction/transaction.model.js";
 import { AppError } from "../../utils/AppError.js";
 
+export const createWalletService = async(userId:mongoose.Types.ObjectId)=>{
+  // check if wallet already exists
+  const exists =await Wallet.findOne({ userId })
+  if (exists) {
+    throw new AppError("Wallet alredy exists",400)
+  }
+  const wallet = await Wallet.create({
+    userId,
+    balance:100
+  })
+  return wallet
+}
 export const creditWalletService = async (
   userId: mongoose.Types.ObjectId,
   amount: number,
@@ -12,12 +24,12 @@ export const creditWalletService = async (
   paymentId?: mongoose.Types.ObjectId,
   withdrawalId?: mongoose.Types.ObjectId,
 ) => {
-  const wallet=await Wallet.findOneAndUpdate(
+  const wallet = await Wallet.findOneAndUpdate(
     { userId },
     { $inc: { balance: amount } },
     { session },
   );
-  if (!wallet)throw new AppError("Wallet not found",404)
+  if (!wallet) throw new AppError("Wallet not found", 404);
   await Transaction.create(
     [
       {
@@ -47,7 +59,7 @@ export const debitWalletService = async (
     { $inc: { balance: -amount } },
     { session },
   );
-  if(!wallet) throw new AppError("Wallet not found",404)
+  if (!wallet) throw new AppError("Wallet not found", 404);
   await Transaction.create(
     [
       {
@@ -63,8 +75,11 @@ export const debitWalletService = async (
     { session },
   );
 };
-export const checkWalletService=async(userId:mongoose.Types.ObjectId,session:any)=>{
-    const wallet=await Wallet.findOne({userId},{session})
-    if(!wallet) throw new AppError("Wallet not found",404)
-    return wallet
-}
+export const checkWalletService = async (
+  userId: mongoose.Types.ObjectId,
+  session: mongoose.ClientSession,
+) => {
+  const wallet = await Wallet.findOne({ userId }).session(session);
+  if (!wallet) throw new AppError("Wallet not found", 404);
+  return wallet;
+};

@@ -40,11 +40,10 @@ export const getTournamentById=asyncHandler(async(req:Request,res:Response,next:
     }
     console.log(id)
   const tournament = await getTournament(id as string)
-  const registeredplayer = await getRegisteredPlayer(id as string)
-  console.log(tournament)
-    if(!tournament){
-        throw new AppError('Tournament not found',404)
-    }
+  if(!tournament){
+      throw new AppError('Tournament not found',404)
+  }
+  const registeredplayer = await getRegisteredPlayer(id as string,tournament?.mode.player)
     res.status(200).json({
       success: true,
       data:{...tournament.toObject(),registeredPlayers:registeredplayer}

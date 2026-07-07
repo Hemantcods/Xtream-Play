@@ -1,6 +1,7 @@
 import { Types } from "mongoose";
 import { Participant } from "../participant/participant.model.js";
-import { Tournament } from "./tournament.model.js";
+import { PlayerMode, Tournament } from "./tournament.model.js";
+import { getCountByTeamType } from "../team/team.service.js";
 
 export const createTournament = async (data: any, creator: any) => {
   // Implementation for creating a tournament
@@ -34,14 +35,15 @@ export const getTournament = async (id: string) => {
   const tournament = await Tournament.findOne({ _id:id });
   return tournament;
 };
-export const getRegisteredPlayer = async (tournament_id: string) => {
+export const getRegisteredPlayer = async (tournament_id: string,format:PlayerMode) => {
   if (!tournament_id) {
     throw new Error("Tournament id is required")
   }
+  const MaxPlayerPerTeam = getCountByTeamType(format)
   const registeredPlayer = await Participant.countDocuments({
     tournamentId:tournament_id
   })
-  return registeredPlayer
+  return registeredPlayer*MaxPlayerPerTeam
 }
 
 export const getUserTournamentsService=async(userId:Types.ObjectId)=>{

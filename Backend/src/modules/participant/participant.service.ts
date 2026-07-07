@@ -4,13 +4,23 @@ import { Participant } from "./participant.model.js";
 import { AppError } from "../../utils/AppError.js";
 import {
   checkWalletService,
+  createWalletService,
   creditWalletService,
   debitWalletService,
 } from "../wallet/wallet.service.js";
+import {
+  generateUniqueInviteCode,
+  getCountByTeamType,
+  getReservedPlayerCount,
+} from "../team/team.service.js";
+import { Team } from "../team/team.model.js";
 
-export const JoinTournamentService = async (
+export const RegisterTournamentService = async (
   tournamentId: mongoose.Types.ObjectId,
   userId: mongoose.Types.ObjectId,
+  uid: string,
+  inGameName: string,
+  teamName: string,
 ) => {
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -35,12 +45,21 @@ export const JoinTournamentService = async (
     if (tournament.StartTime < new Date()) {
       throw new AppError("Tournament has already started, cannot join", 400);
     }
+    // check the team name is provided or not
+    if (tournament.mode.player !== "solo" && !teamName?.trim()) {
+      throw new AppError("Team name is Reqired", 400);
+    }
     // check if the tournament is full
-    const participantCount = await Participant.countDocuments({
+    const teamCount = getCountByTeamType(tournament.mode.player);
+    if (teamCount == -1) {
+      throw new AppError("Internal Team Count Error", 400);
+    }
+    const reservedPlayers = await getReservedPlayerCount(
       tournamentId,
-    }).session(session);
-    if (participantCount >= tournament.maxPlayers) {
-      throw new AppError("Tournament is full, cannot join", 400);
+      teamCount,
+    );
+    if (reservedPlayers + teamCount > tournament.maxPlayers) {
+      throw new AppError("Tournament is full", 400);
     }
     // check wallet balance
     const wallet = await checkWalletService(userId, session);
@@ -55,13 +74,46 @@ export const JoinTournamentService = async (
       "tournament_join",
       tournamentId,
     );
-    // create a new participant
-    const participant = await Participant.create([{ tournamentId, userId }], {
-      session,
-    });
+    // create invite code for the team
+    let inviteCode = "";
+    if (tournament.mode.player !== "solo") {
+      inviteCode = await generateUniqueInviteCode(tournamentId);
+    }
+    // create Team
+    const team = await Team.create(
+      [
+        {
+          tournamentId,
+          captainId: userId,
+          teamName,
+          inviteCode,
+          maxMembers: teamCount,
+          mode:tournament.mode.player,
+          members: [
+            {
+              userId,
+              inGameName,
+              uid,
+              role: "CAPTAIN",
+            },
+          ],
+        },
+      ],
+      { session },
+    );
+    const participant = await Participant.create(
+      [
+        {
+          tournamentId,
+          userId,
+          teamId: team[0]._id,
+        },
+      ],
+      { session },
+    );
     await session.commitTransaction();
     session.endSession();
-    return participant[0];
+    return { participant: participant[0], team: team[0] };
   } catch (error) {
     await session.abortTransaction();
     session.endSession();
@@ -85,20 +137,29 @@ export const LeaveTournamentService = async (
     if (!userId) {
       throw new AppError("User id is required", 400);
     }
-    const participant = await Participant.findOneAndDelete({
-      tournamentId,
-      userId,
-    },{session});
+    const participant = await Participant.findOneAndDelete(
+      {
+        tournamentId,
+        userId,
+      },
+      { session },
+    );
     if (!participant) {
       throw new AppError("User is not a participant in this tournament", 400);
     }
     // refund the tournament entry fee
-    const tournament = await Tournament.findById(tournamentId,{session});
-    if(!tournament) throw new AppError("Tournament not found",404)
-    const amount=tournament?.entryFee
-    await creditWalletService(userId,amount,session,"tournament_refund",tournamentId)
+    const tournament = await Tournament.findById(tournamentId, { session });
+    if (!tournament) throw new AppError("Tournament not found", 404);
+    const amount = tournament?.entryFee;
+    await creditWalletService(
+      userId,
+      amount,
+      session,
+      "tournament_refund",
+      tournamentId,
+    );
     await session.commitTransaction();
-    session.endSession()
+    session.endSession();
     return participant;
   } catch (error) {
     await session.abortTransaction();

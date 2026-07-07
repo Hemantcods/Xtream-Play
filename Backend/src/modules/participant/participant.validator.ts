@@ -2,7 +2,7 @@ import mongoose from "mongoose"
 
 export const validateJoinTournament=(data:any):string|null=>{
     // validate the request body for joining a tournament
-    const {tournamentId,userId}=data
+    const {tournamentId,userId,inGameName,uid}=data
     // verify by mongoose
     if(!mongoose.Types.ObjectId.isValid(tournamentId)){
         return "Invalid tournament id"
@@ -10,7 +10,9 @@ export const validateJoinTournament=(data:any):string|null=>{
     if(!mongoose.Types.ObjectId.isValid(userId)){
         return "Invalid user id"
     }
-    if(!tournamentId) return "Tournament id is required"
+  if (!tournamentId) return "Tournament id is required"
+  if (!inGameName) return "InGame Name is Required"
+  if(!uid) return "uid is required"
     return null
     // todo add validation for userid 
 }
