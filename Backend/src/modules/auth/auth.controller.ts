@@ -6,6 +6,7 @@ import { asyncHandler } from "../../utils/AsyncHandler.js";
 import { generateAccessToken, verifyRefreshToken } from "../../utils/jwt.js";
 import { AuthRequest } from "../../middlewares/auth.middleware.js";
 import { User } from "../user/user.model.js";
+import { setAccessTokenCookie, setRefreshTokenCookie } from "../../utils/cookies.js";
 
 
 // after regitering the user send back the user
@@ -28,11 +29,13 @@ export const login=asyncHandler(async(req:Request,res:Response,next:NextFunction
     if(error){
         throw new AppError(error,400)
     }  
-    const data=await loginUser(req.body)
+  const {user,accessToken,refreshToken} = await loginUser(req.body)
+  setAccessTokenCookie(res, accessToken)
+  setRefreshTokenCookie(res,refreshToken)
     res.status(200).json({
         success:true,
         message:'User Logged in Successfully',
-        ...data
+        data:user
     })
 })
 

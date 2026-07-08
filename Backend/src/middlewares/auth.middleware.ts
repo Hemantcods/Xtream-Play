@@ -13,15 +13,14 @@ interface JwtPayload {
 }
 export const authenticateUser = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
-    const authHeader = req.headers.authorization
-    if(!authHeader || !authHeader.startsWith("Bearer")){
-      throw new AppError("Access denined. No token provided",401) 
+    const token =req.cookies.accessToken ||
+      req.headers.authorization?.replace("Bearer ", "");
+    if (!token) {
+      throw new AppError("Unauthorized", 401);
     }
-    const token = req.headers.authorization?.split(' ')[1]; 
     if (!token) {
       throw new AppError("Access denied. No token provided.", 401);
     }
-
     const decoded = verifyAcessToken(token) as JwtPayload;
     const userId = decoded.userId;
 
@@ -39,17 +38,14 @@ export const authenticateUser = async (req: AuthRequest, res: Response, next: Ne
     if (error instanceof AppError) {
       next(error);
     } else {
+      console.log(error)
       next(new AppError("Invalid token", 401));
     }
   }
 };
 
 // Middleware to check if user is admin
-export const authorizeAdmin = (
-  req: AuthRequest,
-  res: Response,
-  next: NextFunction
-) => {
+export const authorizeAdmin = (req: AuthRequest,res: Response,next: NextFunction) => {
   if (!req.user) {
     return next(new AppError("Unauthorized", 401));
   }
