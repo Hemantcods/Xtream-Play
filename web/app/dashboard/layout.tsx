@@ -13,6 +13,7 @@ import {
   XIcon,
 } from "@phosphor-icons/react";
 import { Toaster } from "@/components/ui/sonner";
+import AuthGuard from "@/components/auth/AuthGaurd";
 
 const Sidebar = [
   {
@@ -55,6 +56,7 @@ export default function DashboardLayout({
   const [open, setOpen] = useState(false);
 
   return (
+    <AuthGuard>
     <div className="flex h-screen bg-[#0B1120] overflow-hidden">
       {/* Mobile Menu Button */}
       <button
@@ -118,5 +120,6 @@ export default function DashboardLayout({
         <Toaster/>
       </div>
     </div>
+    </AuthGuard>
   );
 }

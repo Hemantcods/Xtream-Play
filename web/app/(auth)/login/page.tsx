@@ -1,37 +1,43 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
+import { useLoginMutation } from "@/store/api/authApi";
+import { useAppSelector } from "@/store/hooks";
 
 export default function LoginPage() {
-  const { login, isAuthenticated} = useAuth();
   const router = useRouter();
+  const [login, { isLoading }] = useLoginMutation();
+  const user = useAppSelector((state) => state.auth.user);
+  console.log(user,"user form the redux store")
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   // check if user is already authenticated, if yes then redirect to dashboard
   useEffect(() => {
-    if (isAuthenticated) {
-      router.push("/dashboard");
+    if (user) {
+      router.replace("/dashboard");
     }
-  }, [isAuthenticated, router]);
+  }, [user,router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+  
     setLoading(true);
     setError(null);
+  
     try {
-      await login({ email, password });
-      router.push("/dashboard");
-    } catch (err: any) {
-      setError(err.message || "Login failed");
+      await login({
+        email,
+        password,
+      }).unwrap();
+    } catch (error) {
+      setError(error as string);
     } finally {
       setLoading(false);
     }
-  };
-
+  };  
   return (
     <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
       <div className="w-full max-w-md space-y-6">
@@ -84,7 +90,7 @@ export default function LoginPage() {
         </form>
         
         <div className="text-center text-sm text-gray-400">
-          Don't have an account?{" "}
+          Don`&apos;`t have an account?{" "}
           <a href="/register" className="text-white hover:underline">
             Register here
           </a>

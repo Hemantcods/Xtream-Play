@@ -1,12 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
+import { useRegisterMutation } from "@/store/api/authApi";
+import { useAppSelector } from "@/store/hooks";
 
 export default function RegisterPage() {
-  const { register,isAuthenticated } = useAuth();
   const router = useRouter();
+  const [register] = useRegisterMutation();
+  const user = useAppSelector((state) => state.auth.user);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -15,20 +17,28 @@ export default function RegisterPage() {
   const [error, setError] = useState<string | null>(null);
   // check if user is already authenticated, if yes then redirect to dashboard
   useEffect(() => {
-    if (isAuthenticated) {
-      router.push("/dashboard");
+    if (user) {
+      router.replace("/dashboard");
     }
-  }, [isAuthenticated, router]);
+  }, [user, router]);
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+  
     setLoading(true);
     setError(null);
-
+  
     try {
-      await register({ name, email: email || undefined, phone: phone || undefined, password });
-      router.push("/dashboard");
-    } catch (err: any) {
-      setError(err.message || "Registration failed");
+      await register({
+        name,
+        email: email || undefined,
+        phone: phone || undefined,
+        password,
+      }).unwrap();
+  
+      // No router.push()
+      // Redux updates automatically and the useEffect redirects.
+    } catch (error) {
+      setError("Registration failed");
     } finally {
       setLoading(false);
     }

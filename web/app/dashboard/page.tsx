@@ -1,12 +1,10 @@
 'use client';
 import TournamentCard from "@/components/TournamentCard";
-import { useAuth } from "@/context/AuthContext";
 import { useEffect, useState } from "react";
 import { getAllTournaments } from "@/lib/services/tournamentService";
 import { Tournament } from "@/types/tournament";
 
 export default function Dashboard() {
-  const { user } = useAuth();
   const [tournaments, setTournaments] = useState([] as Tournament[]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
