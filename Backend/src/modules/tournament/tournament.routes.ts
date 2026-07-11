@@ -13,6 +13,6 @@ router.post('/end/:id',authenticateUser,authorizeAdmin,EndTournament)
 // public routes
 router.get('/',getAllTournaments)
 router.get('/joined',authenticateUser,getUserTournaments)
-router.get('/:id',getTournamentById)
+router.get('/:id',authenticateUser,getTournamentById)
 router.get('/status/:id',Status) // for getting the tournament details along with the status of the tournament (upcoming, ongoing, completed) we can use the same controller as getting a tournament by id but we need to pass the tournament id in the request params and we can calculate the status of the tournament based on the current time and the start time of the tournament
 export default router

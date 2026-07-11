@@ -1,18 +1,19 @@
-'use client'
+"use client";
 import { Share2 } from "lucide-react";
 import { Button } from "./ui/button";
 import { Card } from "./ui/card";
 import Countdown from "react-countdown";
 import { toast } from "sonner";
 import { useState } from "react";
-import RegistrationDialog from './RegisterationDialog'
+import RegistrationDialog from "./RegisterationDialog";
 import { Tournament } from "@/types/tournament";
+import Link from "next/link";
 
 interface CountdownProps {
   endDate: Date | string;
 }
-interface TournamentProps{
-  tournamentData:Tournament
+interface TournamentProps {
+  tournamentData: Tournament;
 }
 function TimeBox({ value, label }: { value: number; label: string }) {
   return (
@@ -23,38 +24,51 @@ function TimeBox({ value, label }: { value: number; label: string }) {
   );
 }
 export default function RegistrationCard({ tournamentData }: TournamentProps) {
-  const HandleClick = async() => {
-    await navigator.clipboard.writeText(window.location.href)
-    toast.success("Tournament Link Copied")
-  }
-  const [open,Setopen]=useState(true)
+  const HandleClick = async () => {
+    await navigator.clipboard.writeText(window.location.href);
+    toast.success("Tournament Link Copied");
+  };
+  const [open, Setopen] = useState(false);
   return (
     <>
-    <Card className="p-5 space-y-5 bg-[#13192A] text-white">
-      <h3 className="font-semibold">Registration</h3>
+      <Card className="p-5 space-y-5 bg-[#13192A] text-white">
+        <h3 className="font-semibold">Registration</h3>
 
-      <div>
-        <p className="mb-3 text-center text-sm">
-          Registration Ends In
-        </p>
-
-        <RegistrationCountdown endDate={tournamentData.StartTime} />
-      </div>
-
-      <Button className="w-full bg-red-500" onClick={()=>Setopen(true)}>Apply Now</Button>
-      
-      <Button variant="outline" className="w-full text-black " onClick={()=>{HandleClick()}}>
-        <Share2 className="mr-2 h-4 w-4" />
-        Share Tournament
-      </Button>
-    </Card>
-      <RegistrationDialog open={ open} onOpenChange={Setopen} tournament={tournamentData}/>
+        <div>
+          <p className="mb-3 text-center text-sm">Registration Ends In</p>
+          <RegistrationCountdown endDate={tournamentData.StartTime} />
+        </div>
+        {tournamentData.isRegistered ? (
+          <Link href="/dashboard/mytournaments">
+            <Button className="w-full bg-green-600 hover:bg-green-700">
+              Go to My Tournaments
+            </Button>
+          </Link>
+        ) : (
+          <Button className="w-full bg-red-500" onClick={() => Setopen(true)}>
+            Apply Now
+          </Button>
+        )}
+        <Button
+          variant="outline"
+          className="w-full text-black "
+          onClick={() => {
+            HandleClick();
+          }}
+        >
+          <Share2 className="mr-2 h-4 w-4" />
+          Share Tournament
+        </Button>
+      </Card>
+      <RegistrationDialog
+        open={open}
+        onOpenChange={Setopen}
+        tournament={tournamentData}
+      />
     </>
   );
 }
-function RegistrationCountdown({
-  endDate,
-}: CountdownProps) {
+function RegistrationCountdown({ endDate }: CountdownProps) {
   return (
     <Countdown
       date={new Date(endDate)}

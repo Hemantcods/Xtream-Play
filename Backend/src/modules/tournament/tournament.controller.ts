@@ -5,6 +5,7 @@ import { validateCreateTournament, validateStartTournament } from "./tournament.
 import { createTournament, getRegisteredPlayer, getTournament, getTournaments, getUserTournamentsService } from "./tournament.service.js";
 import console from "console";
 import { AuthRequest } from "../../middlewares/auth.middleware.js";
+import { Participant } from "../participant/participant.model.js";
 
 export const CreateTournament=asyncHandler(async(req:Request,res:Response,next:NextFunction)=>{
     const error=validateCreateTournament(req.body)
@@ -33,7 +34,7 @@ export const getAllTournaments=asyncHandler(async(req:Request,res:Response,next:
     })
 })
 
-export const getTournamentById=asyncHandler(async(req:Request,res:Response,next:NextFunction)=>{
+export const getTournamentById=asyncHandler(async(req:AuthRequest,res:Response,next:NextFunction)=>{
     const { id } = req.params;
     if(!id){
         throw new AppError('Tournament id is required',400)
@@ -43,10 +44,18 @@ export const getTournamentById=asyncHandler(async(req:Request,res:Response,next:
   if(!tournament){
       throw new AppError('Tournament not found',404)
   }
+  let isRegistered=false
+  if (req.user) {
+    const participation = await Participant.exists({
+      tournamentId: id,
+      userId:req.user._id
+    })
+    isRegistered=!!participation
+  }
   const registeredplayer = await getRegisteredPlayer(id as string,tournament?.mode.player)
     res.status(200).json({
       success: true,
-      data:{...tournament.toObject(),registeredPlayers:registeredplayer}
+      data:{...tournament.toObject(),registeredPlayers:registeredplayer,isRegistered}
     })
 })
 

@@ -15,7 +15,7 @@ interface TournamentStatusResponse {
 
 interface ParticipantResponse {
   success: boolean;
-  data: any[]; // Adjust based on actual participant data structure
+  data: []; // Adjust based on actual participant data structure
 }
 
 /**
@@ -234,7 +234,7 @@ export const leaveTournament = async (
 /**
  * Get tournament participants
  */
-export const getTournamentParticipants = async (id: string): Promise<any[]> => {
+export const getTournamentParticipants = async (id: string): Promise<[]> => {
   const response = await fetch(
     `${API_BASE_URL}/participants/${id}/participants`,
     {

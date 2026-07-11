@@ -4,7 +4,6 @@ import { Participant } from "./participant.model.js";
 import { AppError } from "../../utils/AppError.js";
 import {
   checkWalletService,
-  createWalletService,
   creditWalletService,
   debitWalletService,
 } from "../wallet/wallet.service.js";

@@ -1,22 +1,38 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Tournament } from "@/types/tournament"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "./ui/dialog"
-import { Card, CardHeader, CardTitle, CardContent } from "./ui/card"
-import { Button } from "./ui/button"
-import { Separator } from "./ui/separator"
-import { Checkbox } from "./ui/checkbox"
-import { Label } from "./ui/label"
-import { Input } from "./ui/input"
-import { toast } from "sonner"
-import { Trophy, Coins, Gamepad2, Users, UserCheck, Wallet, AlertTriangle, Loader2 } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { useState } from "react";
+import { Tournament } from "@/types/tournament";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "./ui/dialog";
+import { Card, CardHeader, CardTitle, CardContent } from "./ui/card";
+import { Button } from "./ui/button";
+import { Separator } from "./ui/separator";
+import { Checkbox } from "./ui/checkbox";
+import { Label } from "./ui/label";
+import { Input } from "./ui/input";
+import { toast } from "sonner";
+import {
+  Trophy,
+  Coins,
+  Gamepad2,
+  Users,
+  UserCheck,
+  Wallet,
+  AlertTriangle,
+  Loader2,
+} from "lucide-react";
+import { cn, getErrorMessage } from "@/lib/utils";
+import { useJoinTournamentMutation } from "@/store/api/participantApi";
 
 interface Props {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  tournament: Tournament
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  tournament: Tournament;
 }
 
 function StatItem({
@@ -24,9 +40,9 @@ function StatItem({
   label,
   value,
 }: {
-  icon: React.ComponentType<{ className?: string }>
-  label: string
-  value: string
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+  value: string;
 }) {
   return (
     <div className="flex items-center gap-3 rounded-lg border border-white/10 bg-white/[0.03] p-3">
@@ -38,7 +54,7 @@ function StatItem({
         <p className="text-sm font-medium">{value}</p>
       </div>
     </div>
-  )
+  );
 }
 
 function WalletRow({
@@ -47,10 +63,10 @@ function WalletRow({
   value,
   className,
 }: {
-  icon: React.ComponentType<{ className?: string }>
-  label: string
-  value: string
-  className?: string
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+  value: string;
+  className?: string;
 }) {
   return (
     <div className="flex items-center justify-between">
@@ -60,15 +76,19 @@ function WalletRow({
       </div>
       <span className={cn("text-sm", className)}>{value}</span>
     </div>
-  )
+  );
 }
 
 function getTeamSizeLabel(player: string): string {
   switch (player) {
-    case "solo": return "Solo"
-    case "duo": return "Duo"
-    case "squad": return "Squad"
-    default: return player
+    case "solo":
+      return "Solo";
+    case "duo":
+      return "Duo";
+    case "squad":
+      return "Squad";
+    default:
+      return player;
   }
 }
 
@@ -77,58 +97,52 @@ export default function RegistrationDialog({
   onOpenChange,
   tournament,
 }: Props) {
-  const [inGameName, setInGameName] = useState("")
-  const [uid, setUid] = useState("")
-  const [teamName, setTeamName] = useState("")
-  const [agreed, setAgreed] = useState(false)
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [errors, setErrors] = useState<Record<string, string>>({})
+  const [inGameName, setInGameName] = useState("");
+  const [uid, setUid] = useState("");
+  const [teamName, setTeamName] = useState("");
+  const [agreed, setAgreed] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const isSolo = tournament.mode.player === "solo"
-  const walletBalance = 500
-  const entryFee = tournament.entryFee
-  const remainingBalance = walletBalance - entryFee
-  const hasInsufficientFunds = remainingBalance < 0
+  const isSolo = tournament.mode.player === "solo";
+  const walletBalance = 500;
+  const entryFee = tournament.entryFee;
+  const remainingBalance = walletBalance - entryFee;
+  const hasInsufficientFunds = remainingBalance < 0;
 
-  const isFormValid = agreed && inGameName.trim() && uid.trim() && (isSolo || teamName.trim()) && !hasInsufficientFunds
+  const isFormValid =
+    agreed &&
+    inGameName.trim() &&
+    uid.trim() &&
+    (isSolo || teamName.trim()) &&
+    !hasInsufficientFunds;
 
   const validate = () => {
-    const newErrors: Record<string, string> = {}
-    if (!inGameName.trim()) newErrors.inGameName = "In-Game name is required"
-    if (!uid.trim()) newErrors.uid = "Game UID is required"
-    if (!isSolo && !teamName.trim()) newErrors.teamName = "Team name is required"
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
-
+    const newErrors: Record<string, string> = {};
+    if (!inGameName.trim()) newErrors.inGameName = "In-Game name is required";
+    if (!uid.trim()) newErrors.uid = "Game UID is required";
+    if (!isSolo && !teamName.trim())
+      newErrors.teamName = "Team name is required";
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+  const [joinTournament, { isLoading }] = useJoinTournamentMutation();
   const handleRegister = async () => {
-    if (!validate()) return
-    setIsSubmitting(true)
+    if (!validate) return;
     try {
-      const res = await fetch(`/api/tournaments/${tournament._id}/join`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          uid: uid.trim(),
-          inGameName: inGameName.trim(),
-          teamName: isSolo ? "" : teamName.trim(),
-        }),
-      })
-      const data = await res.json()
-      if (!res.ok) {
-        toast.error(data.message || "Failed to register")
-        return
-      }
-      toast.success("Successfully registered!")
-      onOpenChange(false)
-    } catch {
-      toast.error("Something went wrong. Please try again.")
-    } finally {
-      setIsSubmitting(false)
+      await joinTournament({
+        tournamentId: tournament._id,
+        uid: uid.trim(),
+        inGameName: inGameName.trim(),
+        teamName: isSolo ? "" : teamName.trim(),
+      }).unwrap();
+      onOpenChange(!open)
+      toast.success("Successfully registered");
+    } catch (error) {
+      toast.error(getErrorMessage(error));
     }
-  }
+  };
 
-  return (
+  return (  
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
         <DialogHeader>
@@ -147,12 +161,36 @@ export default function RegistrationDialog({
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                <StatItem icon={Trophy} label="Prize Pool" value={`₹${tournament.prizePool}`} />
-                <StatItem icon={Coins} label="Entry Fee" value={`₹${entryFee}`} />
-                <StatItem icon={Gamepad2} label="Game Mode" value={tournament.mode.type} />
-                <StatItem icon={Users} label="Team Size" value={getTeamSizeLabel(tournament.mode.player)} />
-                <StatItem icon={UserCheck} label="Registered" value={`${tournament.registeredPlayers ?? 0}/${tournament.maxPlayers}`} />
-                <StatItem icon={Users} label="Max Players" value={String(tournament.maxPlayers)} />
+                <StatItem
+                  icon={Trophy}
+                  label="Prize Pool"
+                  value={`₹${tournament.prizePool}`}
+                />
+                <StatItem
+                  icon={Coins}
+                  label="Entry Fee"
+                  value={`₹${entryFee}`}
+                />
+                <StatItem
+                  icon={Gamepad2}
+                  label="Game Mode"
+                  value={tournament.mode.type}
+                />
+                <StatItem
+                  icon={Users}
+                  label="Team Size"
+                  value={getTeamSizeLabel(tournament.mode.player)}
+                />
+                <StatItem
+                  icon={UserCheck}
+                  label="Registered"
+                  value={`${tournament.registeredPlayers ?? 0}/${tournament.maxPlayers}`}
+                />
+                <StatItem
+                  icon={Users}
+                  label="Max Players"
+                  value={String(tournament.maxPlayers)}
+                />
               </div>
             </CardContent>
           </Card>
@@ -171,9 +209,14 @@ export default function RegistrationDialog({
                     id="team-name"
                     placeholder="Enter your team name"
                     value={teamName}
-                    onChange={(e) => { setTeamName(e.target.value); setErrors((p) => ({ ...p, teamName: "" })) }}
+                    onChange={(e) => {
+                      setTeamName(e.target.value);
+                      setErrors((p) => ({ ...p, teamName: "" }));
+                    }}
                   />
-                  {errors.teamName && <p className="text-xs text-red-400">{errors.teamName}</p>}
+                  {errors.teamName && (
+                    <p className="text-xs text-red-400">{errors.teamName}</p>
+                  )}
                 </div>
               )}
               <div className="space-y-2">
@@ -182,9 +225,14 @@ export default function RegistrationDialog({
                   id="ign"
                   placeholder="Enter your in-game name"
                   value={inGameName}
-                  onChange={(e) => { setInGameName(e.target.value); setErrors((p) => ({ ...p, inGameName: "" })) }}
+                  onChange={(e) => {
+                    setInGameName(e.target.value);
+                    setErrors((p) => ({ ...p, inGameName: "" }));
+                  }}
                 />
-                {errors.inGameName && <p className="text-xs text-red-400">{errors.inGameName}</p>}
+                {errors.inGameName && (
+                  <p className="text-xs text-red-400">{errors.inGameName}</p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="uid">Game UID</Label>
@@ -192,9 +240,14 @@ export default function RegistrationDialog({
                   id="uid"
                   placeholder="Enter your game UID"
                   value={uid}
-                  onChange={(e) => { setUid(e.target.value); setErrors((p) => ({ ...p, uid: "" })) }}
+                  onChange={(e) => {
+                    setUid(e.target.value);
+                    setErrors((p) => ({ ...p, uid: "" }));
+                  }}
                 />
-                {errors.uid && <p className="text-xs text-red-400">{errors.uid}</p>}
+                {errors.uid && (
+                  <p className="text-xs text-red-400">{errors.uid}</p>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -206,8 +259,17 @@ export default function RegistrationDialog({
               <CardTitle>Wallet</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              <WalletRow icon={Wallet} label="Wallet Balance" value={`₹${walletBalance}`} />
-              <WalletRow icon={Coins} label="Entry Fee" value={`-₹${entryFee}`} className="text-red-400" />
+              <WalletRow
+                icon={Wallet}
+                label="Wallet Balance"
+                value={`₹${walletBalance}`}
+              />
+              <WalletRow
+                icon={Coins}
+                label="Entry Fee"
+                value={`-₹${entryFee}`}
+                className="text-red-400"
+              />
               <Separator />
               <WalletRow
                 icon={Coins}
@@ -219,7 +281,9 @@ export default function RegistrationDialog({
                 <div className="flex items-start gap-3 rounded-lg border border-red-500/20 bg-red-500/10 p-3">
                   <AlertTriangle className="mt-0.5 size-4 shrink-0 text-red-400" />
                   <div className="flex-1">
-                    <p className="text-sm font-medium text-red-400">Insufficient Balance</p>
+                    <p className="text-sm font-medium text-red-400">
+                      Insufficient Balance
+                    </p>
                     <p className="text-xs text-red-400/80">
                       You need ₹{Math.abs(remainingBalance)} more to register.
                     </p>
@@ -258,16 +322,23 @@ export default function RegistrationDialog({
           <Separator />
 
           <div className="flex items-center justify-between">
-            <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isSubmitting}>
+            <Button
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+              disabled={isLoading}
+            >
               Cancel
             </Button>
-            <Button onClick={handleRegister} disabled={!isFormValid || isSubmitting}>
-              {isSubmitting && <Loader2 className="mr-2 size-4 animate-spin" />}
-              {isSubmitting ? "Registering..." : "Register"}
+            <Button
+              onClick={handleRegister}
+              disabled={!isFormValid || isLoading}
+            >
+              {isLoading && <Loader2 className="mr-2 size-4 animate-spin" />}
+              {isLoading ? "Registering..." : "Register"}
             </Button>
           </div>
         </div>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
