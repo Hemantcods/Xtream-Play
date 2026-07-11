@@ -11,7 +11,7 @@ import { useGetTournamentQuery } from "@/store/api/tournamentApi";
 interface Props{
   id:string
 }
-export default function TouramentPage({ id }: Props) {
+export default function TournamentPage({ id }: Props) {
   const { data, isLoading, error } = useGetTournamentQuery(id);
   if (isLoading) {
     return <>Loading</>
@@ -32,7 +32,7 @@ export default function TouramentPage({ id }: Props) {
             <RegisteredPlayersCard registered={TournamentData?.registeredPlayers as number} total={TournamentData?.maxPlayers as number} />
             <TournamentDetailsCard tournament={TournamentData} />
           </div>
-  
+
           <div className="order-1 lg:order-2 flex flex-col gap-4 lg:flex-[3]">
             <RegistrationCard tournamentData={TournamentData}  />
             <PrizePoolCard tournament={TournamentData} />

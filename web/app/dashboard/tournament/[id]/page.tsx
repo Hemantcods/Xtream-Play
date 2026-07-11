@@ -1,4 +1,4 @@
-import TournamentPage from "@/pages/tournament"
+import TournamentPage from "@/components/TournamentPage"
 interface PageProps {
   params: Promise<{
     id: string;
