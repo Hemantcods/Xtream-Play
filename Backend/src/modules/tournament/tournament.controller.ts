@@ -52,10 +52,9 @@ export const getTournamentById=asyncHandler(async(req:AuthRequest,res:Response,n
     })
     isRegistered=!!participation
   }
-  const registeredplayer = await getRegisteredPlayer(id as string,tournament?.mode.player)
     res.status(200).json({
       success: true,
-      data:{...tournament.toObject(),registeredPlayers:registeredplayer,isRegistered}
+      data:{...tournament.toObject(),isRegistered}
     })
 })
 
@@ -156,15 +155,8 @@ export const getUserTournaments=asyncHandler(async(req:AuthRequest,res:Response,
         throw new AppError('User id is required',400)
     }
     const tournaments=await getUserTournamentsService(userId)
-    if(!tournaments || tournaments.length === 0) {
-        res.status(200).json({
-            success:true,
-            message:'No tournaments found'
-        })
-    }
     res.status(200).json({
         success:true,
-        data:tournaments
+      data: tournaments,
     })
-
 })

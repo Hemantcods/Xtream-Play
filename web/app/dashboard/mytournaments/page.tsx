@@ -1,185 +1,120 @@
-// 'use client';
-// import MyTournamentCard from "@/components/MyTournamentCard";
-// import { useEffect, useState } from "react";
-// import { Tournament } from "@/types/tournament";
+"use client";
 
-// export default function MyTournaments() {
-//   const [tournaments, setTournaments] = useState([] as Tournament[]);
-//   const [loading, setLoading] = useState(true);
-//   const [error, setError] = useState<string | null>(null);
+import { useState, useMemo } from "react";
+import { RefreshCw } from "lucide-react";
 
-//   useEffect(() => {
-//     const fetchUserTournaments = async () => {
-//       if (!isAuthenticated ) {
-//         setError("User not authenticated");
-//         setLoading(false);
-//         return;
-//       }
-//       try {
-//         setLoading(true);
-//         const data = await getUserTournaments(getAccessToken() as string);
-//         setTournaments(data);
-//       } catch (err) {
-//         setError(err instanceof Error ? err.message : "Failed to fetch your tournaments");
-//         setTournaments([]);
-//       } finally {
-//         setLoading(false);
-//       }
-//     };
+import TournamentCard from "@/components/my-tournaments/TournamentCard";
+import TournamentTabs, {
+  type TabItem,
+} from "@/components/my-tournaments/TournamentTabs";
+import StatsCard from "@/components/my-tournaments/StatsCard";
+import UpcomingMatchesCard from "@/components/my-tournaments/UpcomingMatchesCard";
+import SupportCard from "@/components/my-tournaments/SupportCard";
+import NotesCard from "@/components/my-tournaments/NotesCard";
+import { useGetUserTournamentsQuery } from "@/store/api/tournamentApi";
+import { mockNotes, mockUpcomingMatches } from "@/mock/myTournament";
+export default function MyTournamentsPage() {
+  const [activeTab, setActiveTab] = useState("all");
+  const { data, isLoading, isFetching, isError, refetch } =
+    useGetUserTournamentsQuery();
 
-//     fetchUserTournaments();
-//   }, [isAuthenticated, getAccessToken]);
+  const tournaments = data?.data.tournaments ?? [];
+  const stats = data?.data.stats;
+  const tabs: TabItem[] = [
+    {
+      key: "all",
+      label: "All",
+      count: stats?.total ?? 0,
+    },
+    {
+      key: "upcoming",
+      label: "Upcoming",
+      count: stats?.upcoming ?? 0,
+    },
+    {
+      key: "live",
+      label: "Live",
+      count: stats?.live ?? 0,
+    },
+    {
+      key: "completed",
+      label: "Completed",
+      count: stats?.completed ?? 0,
+    },
+  ];
+  const filteredTournaments = useMemo(() => {
+    if (activeTab === "all") return tournaments;
 
-//   if (loading) {
-//     return (
-//       <div className="main flex w-full h-full ">
-//         <div className="left w-[30%] bg-[#19233A] h-full p-3 gap-y-5 ">
-//           <div className="text-4xl text-white font-bold">My Tournaments</div>
-//           <div className="games flex flex-col py-2">
-//             <div className="py-3">Game</div>
-//             <div className="flex flex-wrap w-full gap-3">
-//               <div className=" border-2 w-fit px-4 text-center rounded-lg text-sm text-white border-[#BF5555]">
-//                 FreeFire
-//               </div>
-//               <div className=" border-2 w-fit px-4 text-center rounded-lg text-sm text-white border-[#BF5555]">
-//                 FreeFire
-//               </div>
-//               <div className=" border-2 w-fit px-4 text-center rounded-lg text-sm text-white border-[#BF5555]">
-//                 FreeFire
-//               </div>
-//             </div>
-//           </div>
-//           <div className="type flex flex-col py-2">
-//             <div className="py-3">Type</div>
-//             <div className="flex flex-wrap w-full gap-3">
-//               <div className=" border-2 w-fit px-4 text-center rounded-lg text-sm text-white border-[#BF5555]">
-//                 Solo
-//               </div>
-//               <div className=" border-2 w-fit px-4 text-center rounded-lg text-sm text-white border-[#BF5555]">
-//                 Duo
-//               </div>
-//               <div className=" border-2 w-fit px-4 text-center rounded-lg text-sm text-white border-[#BF5555]">
-//                 Squad
-//               </div>
-//             </div>
-//           </div>
-//           <div className="overflow-y-scroll max-h-[60%] gap-y-5 flex flex-col  custom-scrollbar">
-//             {/* Loading skeletons */}
-//             {[1,2,3,4,5].map((_, index) => (
-//               <div key={index} className="animate-pulse">
-//                 <div className="w-full h-64 border-2 border-white rounded-2xl p-4 flex flex-col">
-//                   <div className="text-2xl font-bold text-white h-6"></div>
-//                   <div className="flex justify-between mt-6 flex-1">
-//                     <div className="text-sm text-gray-400 flex flex-col gap-y-3">
-//                       <div>Per Kill</div>
-//                       <div className="text-white text-xl h-5"></div>
-//                     </div>
-//                     <div className="bar h-full w-px bg-white "/>
-//                     <div className="text-sm text-gray-400 flex flex-col gap-y-3">
-//                       <div>Entry Fee</div>
-//                       <div className="text-white text-xl h-5"></div>
-//                     </div>
-//                     <div className="bar h-full w-px bg-white "/>
-//                     <div className="text-sm text-gray-400 flex flex-col gap-y-3">
-//                       <div>Prize Pool</div>
-//                       <div className="text-white text-xl h-5"></div>
-//                     </div>
-//                     <div className="bar h-full w-px bg-white "/>
-//                     <div className="text-sm text-gray-400 flex flex-col gap-y-3">
-//                       <div>Status</div>
-//                       <div className="text-white text-xl h-5"></div>
-//                     </div>
-//                   </div>
-//                 </div>
-//               </div>
-//             ))}
-//           </div>
-//         </div>
-//         <div className="right w-[70%] h-full ">
-//           <div className="p-10">
-//             <div className="Image w-full h-96 overflow-hidden rounded-2xl ">
-//               <img src="https://imgs.search.brave.com/yQ8EPqKXd9_Jw64QTX_F4ysg6A5L7oqeLeuGIbp7CKk/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9pbWFn/ZXMuc2Z0Y2RuLm5l/dC9pbWFnZXMvdF9h/cHAtY292ZXItcy,/m_X2F1dG8vcC8wNzU1/NTZkNS1kNzA2LTRk/MTctYTc2ZS0xZjQw/M2JlNDZiM2IvMTUx/OTE2OTc4L2ZyZWUt/ZmlyZS1nYW1lbG9v/cC1GRi0xJTIwKDEp/LnBuZw" alt="cover"  className="h-full w-full" />
-//             </div>
-//           </div>
-//         </div>
-//       </div>
-//     );
-//   }
+    return tournaments.filter((t) => t.status === activeTab);
+  }, [activeTab, tournaments]);
+  if (isLoading) {
+    return (
+      <div className="flex h-full items-center justify-center">Loading...</div>
+    );
+  }
+  if (isError) {
+    return (
+      <div className="flex h-full flex-col items-center justify-center gap-4">
+        <p className="text-white/70">Failed to load tournaments.</p>
 
-//   if (error) {
-//     return (
-//       <div className="main flex w-full h-full ">
-//         <div className="left w-[30%] bg-[#19233A] h-full p-3 gap-y-5 ">
-//           <div className="text-4xl text-white font-bold">My Tournaments</div>
-//           <div className="text-white text-center py-10">{error}</div>
-//         </div>
-//         <div className="right w-[70%] h-full ">
-//           <div className="p-10">
-//             <div className="Image w-full h-96 overflow-hidden rounded-2xl ">
-//               <img src="https://imgs.search.brave.com/yQ8EPqKXd9_Jw64QTX_F4ysg6A5L7oqeLeuGIbp7CKk/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9pbWFn/ZXMuc2Z0Y2RuLm5l/dC9pbWFnZXMvdF9h/cHAtY292ZXItcy,/m_X2F1dG8vcC8wNzU1/NTZkNS1kNzA2LTRk/MTctYTc2ZS0xZjQw/M2JlNDZiM2IvMTUx/OTE2OTc4L2ZyZWUt/ZmlyZS1nYW1lbG9v/cC1GRi0xJTIwKDEp/LnBuZw" alt="cover"  className="h-full w-full" />
-//             </div>
-//           </div>
-//         </div>
-//       </div>
-//     );
-//   }
+        <button onClick={refetch} className="rounded-lg bg-red-600 px-4 py-2">
+          Retry
+        </button>
+      </div>
+    );
+  }
+  return (
+    <div className="flex h-full w-full">
+      <div className="flex w-full flex-col gap-6 p-4 lg:p-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-white lg:text-3xl">
+              My Tournaments
+            </h1>
+            <p className="mt-1 text-sm text-white/50">
+              Track your registered tournaments and match details
+            </p>
+          </div>
+          <button
+            onClick={() => refetch()}
+            className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white/70 transition-all duration-200 hover:border-red-500/30 hover:bg-red-500/10 hover:text-red-400"
+          >
+            <RefreshCw
+              className={`h-4 w-4 ${isFetching ? "animate-spin" : ""}`}
+            />
+            <span className="hidden sm:inline">Refresh</span>
+          </button>
+        </div>
 
-//   return (
-//     <div className="main flex w-full h-full ">
-//       <div className="left w-[30%] bg-[#19233A] h-full p-3 gap-y-5 ">
-//         <div className="text-4xl text-white font-bold">My Tournaments</div>
-//         <div className="games flex flex-col py-2">
-//           <div className="py-3">Game</div>
-//           <div className="flex flex-wrap w-full gap-3">
-//             <div className=" border-2 w-fit px-4 text-center rounded-lg text-sm text-white border-[#BF5555]">
-//               FreeFire
-//             </div>
-//             <div className=" border-2 w-fit px-4 text-center rounded-lg text-sm text-white border-[#BF5555]">
-//               FreeFire
-//             </div>
-//             <div className=" border-2 w-fit px-4 text-center rounded-lg text-sm text-white border-[#BF5555]">
-//               FreeFire
-//             </div>
-//           </div>
-//         </div>
-//         <div className="type flex flex-col py-2">
-//           <div className="py-3">Type</div>
-//           <div className="flex flex-wrap w-full gap-3">
-//             <div className=" border-2 w-fit px-4 text-center rounded-lg text-sm text-white border-[#BF5555]">
-//               Solo
-//             </div>
-//             <div className=" border-2 w-fit px-4 text-center rounded-lg text-sm text-white border-[#BF5555]">
-//               Duo
-//             </div>
-//             <div className=" border-2 w-fit px-4 text-center rounded-lg text-sm text-white border-[#BF5555]">
-//               Squad
-//             </div>
-//           </div>
-//         </div>
-//         <div className="overflow-y-scroll max-h-[60%] gap-y-5 flex flex-col  custom-scrollbar mt-10">
-//           {tournaments.map((tournament) => (
-//             <MyTournamentCard
-//               key={tournament._id}
-//               title={tournament.name}
-//               perkill={tournament.mode.player === "solo" ? "₹ 10" : tournament.mode.player === "duo" ? "₹ 20" : "₹ 30"} // Example mapping
-//               entry={`₹ ${tournament.entryFee}`}
-//               prizepool={`₹ ${tournament.prizePool}`}
-//               status={tournament.isCompleted ? "Completed" : new Date(tournament.StartTime) > new Date() ? "Upcoming" : "Ongoing"}
-//             />
-//           ))}
-//         </div>
-//       </div>
-//       <div className="right w-[70%] h-full ">
-//         <div className="p-10">
-//           <div className="Image w-full h-96 overflow-hidden rounded-2xl ">
-//             <img src="" alt="cover"  className="h-full w-full" />
-//           </div>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// }
-// 
-export default function MyTournament(){
-  return (<>under Construction</>)
+        <TournamentTabs
+          tabs={tabs}
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+        />
+
+        <div className="flex gap-6">
+          <div className="min-w-0 flex-1 space-y-4">
+            {filteredTournaments.map((tournament) => (
+              <TournamentCard key={tournament._id} tournament={tournament} />
+            ))}
+
+            {filteredTournaments.length === 0 && (
+              <div className="flex flex-col items-center justify-center py-20 text-white/60">
+                <p className="text-lg">
+                  No {activeTab === "all" ? "" : activeTab} tournaments found.
+                </p>
+              </div>
+            )}
+          </div>
+
+          <aside className="hidden w-80 shrink-0 flex-col gap-4 lg:flex">
+            <StatsCard stats={stats!} />
+            <UpcomingMatchesCard matches={mockUpcomingMatches} />
+            <SupportCard />
+            <NotesCard notes={mockNotes} />
+          </aside>
+        </div>
+      </div>
+    </div>
+  );
 }

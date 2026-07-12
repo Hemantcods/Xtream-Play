@@ -1,7 +1,8 @@
 import { Types } from "mongoose";
 import { Participant } from "../participant/participant.model.js";
-import { PlayerMode, Tournament } from "./tournament.model.js";
+import { ITournament, PlayerMode, Tournament } from "./tournament.model.js";
 import { getCountByTeamType } from "../team/team.service.js";
+import { ITeam } from "../team/team.model.js";
 
 export const createTournament = async (data: any, creator: any) => {
   // Implementation for creating a tournament
@@ -32,20 +33,75 @@ export const getTournament = async (id: string) => {
   if (!id) {
     throw new Error("Tournament id is required");
   }
-  const tournament = await Tournament.findOne({ _id:id }).select('-roomId -roomPassword');
+  const tournament = await Tournament.findOne({ _id: id }).select(
+    "-roomId -roomPassword",
+  );
   return tournament;
 };
-export const getRegisteredPlayer = async (tournament_id: string,format:PlayerMode) => {
+export const getRegisteredPlayer = async (
+  tournament_id: string,
+  format: PlayerMode,
+) => {
   if (!tournament_id) {
-    throw new Error("Tournament id is required")
+    throw new Error("Tournament id is required");
   }
-  const MaxPlayerPerTeam = getCountByTeamType(format)
+  const MaxPlayerPerTeam = getCountByTeamType(format);
   const registeredPlayer = await Participant.countDocuments({
-    tournamentId:tournament_id
-  })
-  return registeredPlayer*MaxPlayerPerTeam
-}
+    tournamentId: tournament_id,
+  });
+  return registeredPlayer * MaxPlayerPerTeam;
+};
 
-export const getUserTournamentsService=async(userId:Types.ObjectId)=>{
-  const tournaments=await Participant.find({userId}as any).populate('tournamentId')
-  return tournaments.map(participant=>participant.tournamentId)}
+export const getUserTournamentsService = async (userId: Types.ObjectId) => {
+  const participants = await Participant.find({ userId } as any)
+    .populate("tournamentId")
+    .populate("teamId");
+  const stats = {
+    total: 0,
+    upcoming: 0,
+    live: 0,
+    completed: 0,
+    totalWins: 0,
+    totalEarnings: 0,
+  };
+  const tournaments = participants.map((participant) => {
+    const tournament = participant.tournamentId as unknown as ITournament;
+    const team = participant.teamId as unknown as ITeam;
+    let status: "upcoming" | "live" | "completed";
+    if (tournament.isCompleted) {
+      status = "completed";
+      stats.completed++;
+    } else if (new Date(tournament.StartTime) <= new Date()) {
+      status = "live";
+      stats.live++;
+    } else {
+      status = "upcoming";
+      stats.upcoming++;
+    }
+    stats.total++;
+    return {
+      _id: tournament._id,
+      name: tournament.name,
+      game: tournament.game,
+      status,
+      entryFee: tournament.entryFee,
+      prizePool: tournament.prizePool,
+      registeredPlayers: tournament.registeredPlayers,
+      maxPlayers: tournament.maxPlayers,
+      startTime: tournament.StartTime,
+      mode: tournament.mode,
+      room: {
+        roomId: status === "live" ? tournament.roomId : null,
+        password: status === "live" ? tournament.roomPassword : null,
+      },
+      team: {
+        id: team?._id,
+        teamName: team?.teamName,
+      },
+    };
+  });
+  return {
+    tournaments,
+    stats
+  };
+};

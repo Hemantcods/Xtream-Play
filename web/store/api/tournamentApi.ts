@@ -1,5 +1,13 @@
-import { Tournament } from "@/types/tournament";
+import { MyTournamentCard, Tournament, TournamentStats } from "@/types/tournament";
 import { baseApi } from "./baseApi";
+
+interface GetMyTournamentsResponse {
+ success: boolean;
+ data: {
+   stats: TournamentStats;
+   tournaments: MyTournamentCard[];
+ };
+}
 export const tournamentApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     createTournament: builder.mutation<
@@ -21,8 +29,19 @@ export const tournamentApi = baseApi.injectEndpoints({
       query: (id) => `/tournaments/${id}`,
       providesTags: (_result, _error, id) => [{ type: "Tournament", id }],
     }),
+
+    getUserTournaments: builder.query<
+      GetMyTournamentsResponse,
+      void
+    >({
+      query: () => "/tournaments/joined",
+      providesTags: ["Tournament"],
+    }),
   }),
 });
 
-export const { useCreateTournamentMutation, useGetTournamentQuery } =
-  tournamentApi;
+export const {
+  useCreateTournamentMutation,
+  useGetTournamentQuery,
+  useGetUserTournamentsQuery,
+} = tournamentApi;

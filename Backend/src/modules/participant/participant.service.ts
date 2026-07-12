@@ -53,11 +53,25 @@ export const RegisterTournamentService = async (
     if (teamCount == -1) {
       throw new AppError("Internal Team Count Error", 400);
     }
-    const reservedPlayers = await getReservedPlayerCount(
-      tournamentId,
-      teamCount,
+    const updatedTournament = await Tournament.findOneAndUpdate(
+      {
+        _id: tournamentId,
+        registeredPlayers: {
+          $lte: tournament.maxPlayers - teamCount,
+        },
+      },
+      {
+        $inc: {
+          registeredPlayers: teamCount,
+        },
+      },
+      {
+        new: true,
+        session,
+      }
     );
-    if (reservedPlayers + teamCount > tournament.maxPlayers) {
+    
+    if (!updatedTournament) {
       throw new AppError("Tournament is full", 400);
     }
     // check wallet balance

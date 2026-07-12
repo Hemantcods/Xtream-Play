@@ -1,7 +1,7 @@
 import mongoose, { Document, Schema } from "mongoose";
 import { PlayerMode } from "../tournament/tournament.model.js";
 
-interface ITeam extends Document {
+export interface ITeam extends Document {
   tournamentId: mongoose.Types.ObjectId;
   captainId: mongoose.Types.ObjectId;
   teamName: string;

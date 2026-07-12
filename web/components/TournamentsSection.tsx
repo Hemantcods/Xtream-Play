@@ -6,7 +6,10 @@ interface Tournament {
   game: string;
   startDate: Date;
   prizePool: number;
+  entryFee: number;
+  maxPlayers: number;
   participantCount: number;
+  isCompleted?: boolean;
 }
 
 // Mock data - in a real app, this would come from an API
@@ -17,7 +20,10 @@ const mockTournaments: Tournament[] = [
     game: 'Valorant',
     startDate: new Date('2024-07-15'),
     prizePool: 5000,
+    entryFee: 5,
+    maxPlayers: 128,
     participantCount: 128,
+    isCompleted: false,
   },
   {
     id: '2',
@@ -25,7 +31,10 @@ const mockTournaments: Tournament[] = [
     game: 'League of Legends',
     startDate: new Date('2024-06-30'),
     prizePool: 7500,
+    entryFee: 10,
+    maxPlayers: 64,
     participantCount: 64,
+    isCompleted: true,
   },
   {
     id: '3',
@@ -33,7 +42,10 @@ const mockTournaments: Tournament[] = [
     game: 'Counter-Strike: Global Offensive',
     startDate: new Date('2024-12-01'),
     prizePool: 10000,
+    entryFee: 2,
+    maxPlayers: 64,
     participantCount: 32,
+    isCompleted: false,
   },
 ];
 

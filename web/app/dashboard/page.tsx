@@ -94,7 +94,7 @@ export default function Dashboard() {
         <div className="right w-[70%] h-full ">
           <div className="p-10">
             <div className="Image w-full h-96 overflow-hidden rounded-2xl ">
-              <img src='' alt="cover"  className="h-full w-full" />
+              <img src='/hero.png' alt="cover"  className="h-full w-full" />
             </div>
           </div>
         </div>
@@ -171,14 +171,17 @@ export default function Dashboard() {
           {tournaments.map((tournament) => (
             <TournamentCard
               key={tournament._id}
-              tournament={{
-                id: tournament._id,
-                name: tournament.name,
-                game: tournament.game,
-                startDate: new Date(tournament.StartTime),
-                prizePool: tournament.prizePool,
-                participantCount: 0, // You might want to get this from your data
-              }}
+                tournament={{
+                  id: tournament._id,
+                  name: tournament.name,
+                  game: tournament.game,
+                  startDate: new Date(tournament.StartTime),
+                  prizePool: tournament.prizePool,
+                  entryFee: tournament.entryFee,
+                  maxPlayers: tournament.maxPlayers,
+                  participantCount: tournament.registeredPlayers ?? 0,
+                  isCompleted: tournament.isCompleted,
+                }}
             />
           ))}
         </div>

@@ -22,7 +22,7 @@ export interface Tournament {
   roomPassword?: string;
   createdAt?: string;
   updatedAt?: string;
-  registeredPlayers?: number;
+  registeredPlayers: number;
   isRegistered?: boolean;
 }
 
@@ -90,4 +90,88 @@ export interface Participant {
 export interface RoomData {
   roomId: string;
   roomPassword: string;
+}
+
+export type TournamentStatus = "upcoming" | "live" | "completed";
+
+export interface TournamentTeam {
+  id: string;
+  name: string;
+  logo?: string;
+  rank: number;
+  points: number;
+}
+
+export interface MyTournamentCard {
+  _id: string;
+  name: string;
+  game: string;
+  mode: {
+    map?: string,
+    player?:string,
+    type?:string
+  }
+  teamType: string;
+  status: TournamentStatus;
+  bannerImage?: string;
+  startTime: string;
+  entryFee: number;
+  prizePool: number;
+  registeredTeams: number;
+  maxPlayers: number;
+  tags: { game: string; mode: string; state: string };
+  room: {
+    roomId?: string,
+    password?:string,
+  },
+  round?: string;
+  currentMap?: string;
+  teams?: TournamentTeam[];
+  registrationConfirmed?: boolean;
+}
+
+export interface TournamentStats {
+  total: number;
+  upcoming: number;
+  live: number;
+  completed: number;
+  totalWins: number;
+  totalEarnings: number;
+}
+
+export interface UpcomingMatch {
+  id: string;
+  tournamentTitle: string;
+  game: string;
+  startDate: string;
+  gameIcon?: string;
+}
+
+export interface Note {
+  id: string;
+  text: string;
+}
+
+export type TeamStatus = "confirmed" | "pending" | "qualified";
+
+export interface RegisteredTeam {
+  id: string;
+  teamName: string;
+  totalPoints: number;
+  status: TeamStatus;
+  registeredAt: string;
+}
+
+export interface TournamentSummary {
+  id: string;
+  title: string;
+  bannerImage: string;
+  game: string;
+  mode: string;
+  status: TournamentStatus;
+  registeredTeams: number;
+  maxTeams: number;
+  prizePool: number;
+  entryFee: number;
+  registrationEndsAt: string;
 }
