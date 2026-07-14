@@ -12,7 +12,6 @@ import UpcomingMatchesCard from "@/components/my-tournaments/UpcomingMatchesCard
 import SupportCard from "@/components/my-tournaments/SupportCard";
 import NotesCard from "@/components/my-tournaments/NotesCard";
 import { useGetUserTournamentsQuery } from "@/store/api/tournamentApi";
-import { mockNotes, mockUpcomingMatches } from "@/mock/myTournament";
 export default function MyTournamentsPage() {
   const [activeTab, setActiveTab] = useState("all");
   const { data, isLoading, isFetching, isError, refetch } =
@@ -109,9 +108,9 @@ export default function MyTournamentsPage() {
 
           <aside className="hidden w-80 shrink-0 flex-col gap-4 lg:flex">
             <StatsCard stats={stats!} />
-            <UpcomingMatchesCard matches={mockUpcomingMatches} />
+            {/*<UpcomingMatchesCard matches={tournaments} />*/}
             <SupportCard />
-            <NotesCard notes={mockNotes} />
+            {/*<NotesCard notes={} />*/}
           </aside>
         </div>
       </div>

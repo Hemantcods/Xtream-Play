@@ -13,7 +13,6 @@ import TournamentStatsCard from "@/components/registered-teams/TournamentStatsCa
 import HelpCard from "@/components/registered-teams/HelpCard";
 import NotesCard from "@/components/registered-teams/NotesCard";
 import { useGetRegisteredTeamsQuery } from "@/store/api/participantApi";
-import { mockNotes } from "@/mock/myTournament";
 const PAGE_SIZE = 10;
 
 export default function RegisteredTeamsPage() {
@@ -136,7 +135,7 @@ export default function RegisteredTeamsPage() {
             {summary && <TournamentSummaryCard summary={summary} />}
             {summary && <TournamentStatsCard summary={summary} />}
             <HelpCard />
-            <NotesCard notes={mockNotes} />
+            {/*<NotesCard notes={mockNotes} />*/}
           </aside>
         </div>
       </div>
