@@ -10,7 +10,7 @@ export default function TournamentStatsCard({ summary }: TournamentStatsCardProp
     { icon: Trophy, label: "Prize Pool", value: `$${summary.prizePool.toLocaleString()}`, color: "text-red-400" },
     { icon: DollarSign, label: "Entry Fee", value: `$${summary.entryFee}`, color: "text-green-400" },
     { icon: Gamepad2, label: "Team Type", value: summary.mode, color: "text-purple-400" },
-    { icon: Users, label: "Max Teams", value: summary.maxTeams.toString(), color: "text-blue-400" },
+    { icon: Users, label: "Max Teams", value: summary.maxPlayers.toString(), color: "text-blue-400" },
   ];
 
   return (

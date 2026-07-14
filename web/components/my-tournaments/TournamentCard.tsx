@@ -14,7 +14,7 @@ export default function TournamentCard({ tournament }: TournamentCardProps) {
   const router = useRouter();
 
   const handleClick = () => {
-    router.push(`/my-tournaments/${tournament._id}/teams`);
+    router.push(`/dashboard/mytournaments/${tournament._id}/teams`);
   };
 
   return (

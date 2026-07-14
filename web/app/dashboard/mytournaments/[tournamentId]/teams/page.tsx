@@ -12,24 +12,24 @@ import TournamentSummaryCard from "@/components/registered-teams/TournamentSumma
 import TournamentStatsCard from "@/components/registered-teams/TournamentStatsCard";
 import HelpCard from "@/components/registered-teams/HelpCard";
 import NotesCard from "@/components/registered-teams/NotesCard";
-import { mockRegisteredTeams, mockTournamentSummary } from "@/mock/registeredTeams";
+import { useGetRegisteredTeamsQuery } from "@/store/api/participantApi";
 import { mockNotes } from "@/mock/myTournament";
-import type { RegisteredTeam } from "@/types/tournament";
-
 const PAGE_SIZE = 10;
 
 export default function RegisteredTeamsPage() {
   const params = useParams();
   const tournamentId = params.tournamentId as string;
-
+  const { data, isLoading, isError, refetch } =
+    useGetRegisteredTeamsQuery(tournamentId);
+  const summary = data?.data.summary;
+  const registeredTeams = data?.data.teams ?? [];
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [sortBy, setSortBy] = useState("points-desc");
   const [currentPage, setCurrentPage] = useState(1);
-
+  console.log(registeredTeams)
   const filteredTeams = useMemo(() => {
-    let teams = [...mockRegisteredTeams];
-
+    let teams = [...registeredTeams];
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
       teams = teams.filter((t) => t.teamName.toLowerCase().includes(q));
@@ -41,25 +41,37 @@ export default function RegisteredTeamsPage() {
 
     teams.sort((a, b) => {
       switch (sortBy) {
-        case "points-desc": return b.totalPoints - a.totalPoints;
-        case "points-asc": return a.totalPoints - b.totalPoints;
-        case "name-asc": return a.teamName.localeCompare(b.teamName);
-        case "name-desc": return b.teamName.localeCompare(a.teamName);
-        case "date-desc": return new Date(b.registeredAt).getTime() - new Date(a.registeredAt).getTime();
-        case "date-asc": return new Date(a.registeredAt).getTime() - new Date(b.registeredAt).getTime();
-        default: return 0;
+        case "points-desc":
+          return b.totalPoints - a.totalPoints;
+        case "points-asc":
+          return a.totalPoints - b.totalPoints;
+        case "name-asc":
+          return a.teamName.localeCompare(b.teamName);
+        case "name-desc":
+          return b.teamName.localeCompare(a.teamName);
+        case "date-desc":
+          return (
+            new Date(b.registeredAt).getTime() -
+            new Date(a.registeredAt).getTime()
+          );
+        case "date-asc":
+          return (
+            new Date(a.registeredAt).getTime() -
+            new Date(b.registeredAt).getTime()
+          );
+        default:
+          return 0;
       }
     });
 
     return teams;
-  }, [searchQuery, statusFilter, sortBy]);
+  }, [searchQuery, statusFilter, sortBy,registeredTeams]);
 
   const totalPages = Math.ceil(filteredTeams.length / PAGE_SIZE);
   const paginatedTeams = filteredTeams.slice(
     (currentPage - 1) * PAGE_SIZE,
     currentPage * PAGE_SIZE,
   );
-
   const handleSearchChange = (value: string) => {
     setSearchQuery(value);
     setCurrentPage(1);
@@ -74,16 +86,27 @@ export default function RegisteredTeamsPage() {
     setSortBy(value);
     setCurrentPage(1);
   };
-
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+  
+  if (isError) {
+    return (
+      <div>
+        Failed to load teams.
+        <button onClick={refetch}>Retry</button>
+      </div>
+    );
+  }
   return (
     <div className="flex h-full w-full">
       <div className="flex w-full flex-col gap-6 p-4 lg:p-6">
         <TeamsHeader
-          tournamentTitle={mockTournamentSummary.title}
+          tournamentTitle={summary?.title ?? ""}
           backHref="/dashboard/mytournaments"
         />
 
-        <TeamsStats summary={mockTournamentSummary} />
+        {summary && <TeamsStats summary={summary} />}
 
         <TeamsSearch
           onSearchChange={handleSearchChange}
@@ -110,8 +133,8 @@ export default function RegisteredTeamsPage() {
           </div>
 
           <aside className="hidden w-80 shrink-0 flex-col gap-4 lg:flex ">
-            <TournamentSummaryCard summary={mockTournamentSummary} />
-            <TournamentStatsCard summary={mockTournamentSummary} />
+            {summary && <TournamentSummaryCard summary={summary} />}
+            {summary && <TournamentStatsCard summary={summary} />}
             <HelpCard />
             <NotesCard notes={mockNotes} />
           </aside>

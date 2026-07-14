@@ -169,8 +169,8 @@ export interface TournamentSummary {
   game: string;
   mode: string;
   status: TournamentStatus;
-  registeredTeams: number;
-  maxTeams: number;
+  registeredPlayers: number;
+  maxPlayers: number;
   prizePool: number;
   entryFee: number;
   registrationEndsAt: string;

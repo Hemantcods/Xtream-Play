@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { asyncHandler } from "../../utils/AsyncHandler.js";
 import {
   GetParticipantsService,
+  getRegisteredTeamsService,
   LeaveTournamentService,
   RegisterTournamentService,
 } from "./participant.service.js";
@@ -76,3 +77,22 @@ export const GetParticipants = asyncHandler(
     });
   },
 );
+
+export const getRegisteredTeams = asyncHandler(async (req: AuthRequest, res: Response) => {
+  const { id } = req.params;
+  const userId = req.user?._id;
+  console.log(userId)
+  if (!userId) {
+    throw new AppError("Unauthorized", 401);
+  }
+  const tournamentId = new mongoose.Types.ObjectId(id as string);
+  if (!tournamentId) {
+       throw new AppError("Tournament id is required", 400);
+  }
+  const data = await getRegisteredTeamsService(tournamentId, userId)
+  res.status(200).json({
+    success: true,
+    data
+  })
+
+})

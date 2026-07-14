@@ -1,3 +1,4 @@
+import { RegisteredTeam, TournamentSummary } from "@/types/tournament";
 import { baseApi } from "./baseApi";
 
 interface JoinTournamentRequest {
@@ -12,12 +13,17 @@ interface ApiResponse {
   message: string;
 }
 
+interface GetRegisteredResponse {
+  success: boolean;
+  data: {
+    summary: TournamentSummary;
+    teams: RegisteredTeam[];
+  };
+}
+
 export const participantApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    joinTournament: builder.mutation<
-      ApiResponse,
-      JoinTournamentRequest
-    >({
+    joinTournament: builder.mutation<ApiResponse, JoinTournamentRequest>({
       query: ({ tournamentId, ...body }) => ({
         url: `/participants/${tournamentId}/join`,
         method: "POST",
@@ -26,9 +32,17 @@ export const participantApi = baseApi.injectEndpoints({
       invalidatesTags: (_result, _error, { tournamentId }) => [
         { type: "Tournament", id: tournamentId },
       ],
-    })
-  })
-})
+    }),
+    getRegisteredTeams: builder.query<GetRegisteredResponse, string>({
+      query: (tournamentId) => ({
+        url: `/participants/${tournamentId}/teams`,
+      }),
+      providesTags: (result, error, tournamentId) => [
+        { type: "Tournament", id: tournamentId },
+      ],
+    }),
+  }),
+});
 
-
-export const {useJoinTournamentMutation}=participantApi
+export const { useJoinTournamentMutation, useGetRegisteredTeamsQuery } =
+  participantApi;

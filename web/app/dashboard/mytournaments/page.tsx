@@ -18,7 +18,7 @@ export default function MyTournamentsPage() {
   const { data, isLoading, isFetching, isError, refetch } =
     useGetUserTournamentsQuery();
 
-  const tournaments = data?.data.tournaments ?? [];
+  const tournaments = data?.data.tournaments;
   const stats = data?.data.stats;
   const tabs: TabItem[] = [
     {
@@ -45,7 +45,7 @@ export default function MyTournamentsPage() {
   const filteredTournaments = useMemo(() => {
     if (activeTab === "all") return tournaments;
 
-    return tournaments.filter((t) => t.status === activeTab);
+    return tournaments?.filter((t) => t.status === activeTab);
   }, [activeTab, tournaments]);
   if (isLoading) {
     return (
@@ -94,11 +94,11 @@ export default function MyTournamentsPage() {
 
         <div className="flex gap-6">
           <div className="min-w-0 flex-1 space-y-4">
-            {filteredTournaments.map((tournament) => (
+            {filteredTournaments?.map((tournament) => (
               <TournamentCard key={tournament._id} tournament={tournament} />
             ))}
 
-            {filteredTournaments.length === 0 && (
+            {filteredTournaments?.length === 0 && (
               <div className="flex flex-col items-center justify-center py-20 text-white/60">
                 <p className="text-lg">
                   No {activeTab === "all" ? "" : activeTab} tournaments found.

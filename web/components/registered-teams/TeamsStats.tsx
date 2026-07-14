@@ -9,8 +9,8 @@ interface TeamsStatsProps {
 }
 
 export default function TeamsStats({ summary }: TeamsStatsProps) {
-  const spotsLeft = summary.maxTeams - summary.registeredTeams;
-  const progress = (summary.registeredTeams / summary.maxTeams) * 100;
+  const spotsLeft = summary.maxPlayers - summary.registeredPlayers;
+  const progress = (summary.registeredPlayers / summary.maxPlayers) * 100;
 
   const statusBadge = {
     upcoming: { label: "Registration Open", className: "text-green-400 bg-green-500/15 border-green-500/30" },
@@ -23,10 +23,10 @@ export default function TeamsStats({ summary }: TeamsStatsProps) {
       <div className="rounded-2xl border border-white/10 bg-[#13192A] p-4">
         <div className="flex items-center gap-2 text-white/50">
           <Users className="h-4 w-4" />
-          <span className="text-xs font-medium">Registered Teams</span>
+          <span className="text-xs font-medium">Registered Players</span>
         </div>
         <p className="mt-1.5 text-xl font-bold text-white">
-          {summary.registeredTeams} <span className="text-sm font-normal text-white/40">/ {summary.maxTeams}</span>
+          {summary.registeredPlayers} <span className="text-sm font-normal text-white/40">/ {summary.maxPlayers}</span>
         </p>
         <div className="mt-2.5 h-1.5 w-full overflow-hidden rounded-full bg-white/10">
           <div className="h-full rounded-full bg-red-500 transition-all" style={{ width: `${progress}%` }} />

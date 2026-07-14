@@ -13,6 +13,7 @@ import {
   getReservedPlayerCount,
 } from "../team/team.service.js";
 import { Team } from "../team/team.model.js";
+import { title } from "process";
 
 export const RegisterTournamentService = async (
   tournamentId: mongoose.Types.ObjectId,
@@ -68,9 +69,9 @@ export const RegisterTournamentService = async (
       {
         new: true,
         session,
-      }
+      },
     );
-    
+
     if (!updatedTournament) {
       throw new AppError("Tournament is full", 400);
     }
@@ -101,7 +102,7 @@ export const RegisterTournamentService = async (
           teamName,
           inviteCode,
           maxMembers: teamCount,
-          mode:tournament.mode.player,
+          mode: tournament.mode.player,
           members: [
             {
               userId,
@@ -196,4 +197,55 @@ export const GetParticipantsService = async (
     throw new AppError("No participants found", 404);
   }
   return participants;
+};
+
+export const getRegisteredTeamsService = async (
+  tournamentId: mongoose.Types.ObjectId,
+  userId: mongoose.Types.ObjectId,
+) => {
+  // Check user joined this tournament
+  const participant = await Participant.findOne({
+    tournamentId,
+    userId,
+  });
+  console.log(userId, tournamentId);
+  if (!participant) {
+    throw new AppError("You are not registered in this tournament", 403);
+  }
+  const tournament = await Tournament.findOne({ _id: tournamentId });
+  if (!tournament) {
+    throw new AppError("Tournament not found", 404);
+  }
+  const teams = await Team.find({
+    tournamentId,
+  }).sort({
+    totalPoints: -1,
+  });
+  const summary = {
+      _id: tournament._id,
+      title: tournament.name,
+      game: tournament.game,
+      mode: tournament.mode.player,
+      status: tournament.isCompleted
+        ? "completed"
+        : tournament.StartTime <= new Date()
+        ? "live"
+        : "upcoming",
+      registeredPlayers: tournament.registeredPlayers,
+      maxPlayers: tournament.maxPlayers,
+      prizePool: tournament.prizePool,
+      entryFee: tournament.entryFee,
+      registrationEndsAt: tournament.StartTime,
+    };
+  const registeredTeams = teams.map((team) => ({
+    _id: team._id,
+    teamName: team.teamName,
+    totalPoints: team.stats.points ?? 0,
+    status: 'confirmed',
+    registeredAt:team.createdAt
+  }));
+  return {
+    summary,
+    teams:registeredTeams
+  };
 };
