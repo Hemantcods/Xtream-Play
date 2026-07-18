@@ -1,8 +1,15 @@
-import { Types } from "mongoose";
+import mongoose, { Types } from "mongoose";
 import { Participant } from "../participant/participant.model.js";
 import { ITournament, PlayerMode, Tournament } from "./tournament.model.js";
 import { getCountByTeamType } from "../team/team.service.js";
 import { ITeam } from "../team/team.model.js";
+import {
+  GetAdminTournamentQuery,
+  TournamentStatus,
+  UpdateTournamentDto,
+} from "./tournament.types.js";
+import { QueryFilter } from "mongoose";
+import { AppError } from "../../utils/AppError.js";
 
 export const createTournament = async (data: any, creator: any) => {
   // Implementation for creating a tournament
@@ -102,6 +109,120 @@ export const getUserTournamentsService = async (userId: Types.ObjectId) => {
   });
   return {
     tournaments,
-    stats
+    stats,
   };
+};
+export const getAdminTournamentsService = async (
+  query: GetAdminTournamentQuery,
+) => {
+  const {
+    page = 1,
+    limit = 10,
+    search,
+    game,
+    playerMode,
+    sort = "-createdAt",
+  } = query;
+  const filter: QueryFilter<ITournament> = {};
+  if (game) filter.game = game;
+  if (playerMode) filter["mode.player"] = playerMode;
+  if (search) {
+    filter.name = {
+      $regex: search,
+      $options: "i",
+    };
+  }
+  const skip = (Number(page) - 1) * Number(limit);
+  const [tournamentsWithoutStatus, total] = await Promise.all([
+    Tournament.find(filter).sort(sort).skip(skip).limit(Number(limit)).lean(),
+    Tournament.countDocuments(filter),
+  ]);
+  const tournaments = tournamentsWithoutStatus.map((tournament) => ({
+    ...tournament,
+    status: getTournamentStatus(tournament),
+  }));
+  return {
+    tournaments,
+    page: Number(page),
+    limit: Number(limit),
+    total,
+    totalPages: Math.ceil(total / Number(limit)),
+  };
+};
+export const getAdminTournamentByIdService = async (id: string) => {
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    throw new AppError("Invalid tournament id", 400);
+  }
+  const tournament = await Tournament.findById(id)
+    .populate("createdBy", "name email")
+    .populate("winner", "name")
+    .lean();
+  if (!tournament) {
+    throw new AppError("Tournament not Found", 404);
+  }
+  const status = getTournamentStatus(tournament)
+  
+  return {
+      ...tournament,
+      status
+  };
+};
+export const updateTournamentSevice = async (
+  id: string,
+  updatedData: UpdateTournamentDto,
+) => {
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    throw new AppError("Invalid tournament id.", 400);
+  }
+  const tournament = await Tournament.findById(id);
+  if (!tournament) {
+    throw new AppError("Tournament not found.", 404);
+  }
+  // Business Logic
+  if (
+    tournament.registeredPlayers > 0 &&
+    (updatedData.game ||
+      updatedData.mode ||
+      updatedData.maxPlayers ||
+      updatedData.entryFee)
+  ) {
+    throw new AppError(
+      "Game, mode, entry fee, and max players cannot be changed after registrations have started.",
+      400,
+    );
+  }
+  Object.assign(tournament, updatedData);
+  await tournament.save();
+  const status = getTournamentStatus(tournament);
+  return {
+    tournament,
+    status,
+  };
+};
+export const getTournamentStatus = (
+  tournament: ITournament,
+): TournamentStatus => {
+  if (tournament.isCompleted) {
+    return TournamentStatus.COMPLETED;
+  }
+  if (new Date() >= tournament.StartTime) {
+    return TournamentStatus.RUNNING;
+  }
+  return TournamentStatus.UPCOMING;
+};
+export const DeleteTournamentService = async (id: string) => {
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    throw new AppError("Invalid tournament id.", 400);
+  }
+  const tournament = await Tournament.findById(id);
+  if (!tournament) {
+    throw new AppError("Tournament not found",404)
+  }
+  if (tournament.registeredPlayers > 0) {
+    throw new AppError("Cannot delete a tournament with registered players",400)
+  }
+  if (tournament.StartTime <= new Date()) {
+    throw new AppError("Tournament has alredy started",400)
+  }
+  await tournament.deleteOne()
 };

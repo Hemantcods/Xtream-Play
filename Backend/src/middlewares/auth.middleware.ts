@@ -49,10 +49,8 @@ export const authorizeAdmin = (req: AuthRequest,res: Response,next: NextFunction
   if (!req.user) {
     return next(new AppError("Unauthorized", 401));
   }
-
   if (req.user.role !== "admin") {
     return next(new AppError("Access denied. Admin only.", 403));
   }
-
   return next();
 };

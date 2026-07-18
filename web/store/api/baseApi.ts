@@ -6,7 +6,8 @@ export const baseApi = createApi({
   baseQuery: baseQueryWithReauth,
   tagTypes: [
     'Auth',
-    'Tournament'
+    'Tournament',
+    'Admin'
   ],
   endpoints:()=>({})
 })
