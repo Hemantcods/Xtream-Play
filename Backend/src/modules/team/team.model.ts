@@ -1,14 +1,21 @@
 import mongoose, { Document, Schema } from "mongoose";
 import { PlayerMode } from "../tournament/tournament.model.js";
 
+export interface ITeamMember {
+  userId: mongoose.Types.ObjectId;
+  inGameName: string;
+  uid: string;
+  joinedAt?: Date;
+}
+
 export interface ITeam extends Document {
   tournamentId: mongoose.Types.ObjectId;
   captainId: mongoose.Types.ObjectId;
   teamName: string;
   inviteCode: string;
-  mode: "SOLO" | "DUO" | "SQUAD";
+  mode: PlayerMode;
   maxMembers: number;
-  members: Object[];
+  members: ITeamMember[];
   paymentStatus: "PENDING" | "PAID";
   stats: {
     kills: number;
@@ -36,12 +43,6 @@ const TeamMemberSchema = new Schema(
     uid: {
       type: String,
       required: true,
-    },
-
-    role: {
-      type: String,
-      enum: ["CAPTAIN", "MEMBER"],
-      default: "MEMBER",
     },
     joinedAt: {
       type: Date,
@@ -120,5 +121,8 @@ const TeamSchema = new Schema<ITeam>(
 
 TeamSchema.index({ tournamentId: 1, captainId: 1 }, { unique: true });
 TeamSchema.index({ inviteCode: 1 }, { unique: true });
-
+TeamSchema.index({
+  tournamentId: 1,
+  "members.userId": 1,
+});
 export const Team = mongoose.model<ITeam>("Team", TeamSchema);

@@ -4,6 +4,7 @@ import tournametRoutes from "./modules/tournament/tournament.routes.js"
 import participantRoutes from "./modules/participant/participant.routes.js"
 import userRoutes from "./modules/user/user.routes.js"
 import adminRoutes from "./modules/admin/admin.routes.js"
+import teamRoutes from "./modules/team/team.routes.js"
 import { errorMiddleware } from "./middlewares/error.middleware.js";
 import cors from 'cors'
 import cookieParser from "cookie-parser";
@@ -21,7 +22,8 @@ app.use("/api/auth",authRoutes)
 app.use("/api/tournaments",tournametRoutes)
 app.use("/api/participants",participantRoutes)
 app.use("/api/user", userRoutes)
-app.use("/api/admin",adminRoutes)
+app.use("/api/admin", adminRoutes)
+app.use("/api/team",teamRoutes)
 // error middleware
 app.use(errorMiddleware)
 
