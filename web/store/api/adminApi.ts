@@ -8,15 +8,13 @@ import type {
   LeaderboardEntry,
   AdminUser,
   AdminTournamentListResponse,
+  CreateTournamentDto,
 } from "@/types/admin";
 import { baseApi } from "./baseApi";
 
 export const adminApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    getAdminStats: builder.query<
-      { success: boolean; data: AdminStats },
-      void
-    >({
+    getAdminStats: builder.query<{ success: boolean; data: AdminStats }, void>({
       query: () => "/admin/stats",
       providesTags: ["Admin"],
     }),
@@ -54,11 +52,11 @@ export const adminApi = baseApi.injectEndpoints({
     }),
 
     createAdminTournament: builder.mutation<
-      { success: boolean; data: AdminTournament },
-      Omit<AdminTournament, "_id" | "createdAt" | "updatedAt" | "registeredPlayers">
+      { success: boolean; data: AdminTournament; message: string },
+      CreateTournamentDto
     >({
       query: (body) => ({
-        url: "/admin/tournaments",
+        url: "/tournaments/admin/create",
         method: "POST",
         body,
       }),
@@ -159,8 +157,7 @@ export const adminApi = baseApi.injectEndpoints({
       { success: boolean; data: LeaderboardEntry[] },
       string
     >({
-      query: (tournamentId) =>
-        `/admin/tournaments/${tournamentId}/leaderboard`,
+      query: (tournamentId) => `/admin/tournaments/${tournamentId}/leaderboard`,
       providesTags: (_result, _error, tournamentId) => [
         { type: "Admin", id: tournamentId },
       ],
@@ -192,24 +189,22 @@ export const adminApi = baseApi.injectEndpoints({
       invalidatesTags: ["Admin"],
     }),
 
-    deleteTeam: builder.mutation<
-      { success: boolean; message: string },
-      string
-    >({
-      query: (teamId) => ({
-        url: `/admin/teams/${teamId}`,
-        method: "DELETE",
-      }),
-      invalidatesTags: ["Admin"],
-    }),
+    deleteTeam: builder.mutation<{ success: boolean; message: string }, string>(
+      {
+        query: (teamId) => ({
+          url: `/admin/teams/${teamId}`,
+          method: "DELETE",
+        }),
+        invalidatesTags: ["Admin"],
+      },
+    ),
 
-    getAdminUsers: builder.query<
-      { success: boolean; data: AdminUser[] },
-      void
-    >({
-      query: () => "/admin/users",
-      providesTags: ["Admin"],
-    }),
+    getAdminUsers: builder.query<{ success: boolean; data: AdminUser[] }, void>(
+      {
+        query: () => "/admin/users",
+        providesTags: ["Admin"],
+      },
+    ),
   }),
 });
 

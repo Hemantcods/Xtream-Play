@@ -1,12 +1,14 @@
+import { Tournament } from "@/types/tournament";
 import { ArrowLeftIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
 interface TournamentTopProps {
   image: string;
+  tournament: Tournament;
 }
 
-export default function TournamentTop({ image }: TournamentTopProps) {
+export default function TournamentTop({ image,tournament }: TournamentTopProps) {
   return (
     <section className="relative overflow-hidden rounded-2xl bg-[#13192A]">
       {/* Background */}
@@ -37,16 +39,16 @@ export default function TournamentTop({ image }: TournamentTopProps) {
         {/* Title */}
         <div>
           <h1 className="text-3xl font-bold lg:text-5xl">
-            BGMI Pro League
+            {tournament.name}
           </h1>
 
           <div className="mt-4 flex flex-wrap gap-2">
             <span className="rounded-full bg-white/10 px-3 py-1 text-sm">
-              BGMI
+              {tournament.game}
             </span>
 
             <span className="rounded-full bg-white/10 px-3 py-1 text-sm">
-              Squad
+              {tournament.mode.player}
             </span>
 
             <span className="rounded-full bg-green-500/15 px-3 py-1 text-sm font-medium text-green-400">

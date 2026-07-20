@@ -1,22 +1,16 @@
 "use client";
-
-import { useState } from "react";
 import { useRouter } from "next/navigation";
 import PageHeader from "@/components/admin/common/PageHeader";
 import TournamentForm from "@/components/admin/forms/TournamentForm";
-import type { TournamentFormData } from "@/components/admin/forms/TournamentForm";
+import { useCreateAdminTournamentMutation } from "@/store/api/adminApi";
+import { CreateTournamentDto } from "@/types/admin";
 
 export default function CreateTournamentPage() {
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
-
-  const handleSubmit = (data: TournamentFormData) => {
-    setLoading(true);
-    console.log("Create tournament:", data);
-    setTimeout(() => {
-      setLoading(false);
-      router.push("/admin/tournaments");
-    }, 1000);
+  const [createTournamnet,{isLoading}]=useCreateAdminTournamentMutation()
+  const handleSubmit = async (data: CreateTournamentDto) => {
+    const res = await createTournamnet(data).unwrap()
+    console.log(res)
   };
 
   return (
@@ -26,7 +20,7 @@ export default function CreateTournamentPage() {
         description="Set up a new tournament"
       />
 
-      <TournamentForm onSubmit={handleSubmit} loading={loading} />
+      <TournamentForm onSubmit={handleSubmit} loading={isLoading} />
     </div>
   );
 }

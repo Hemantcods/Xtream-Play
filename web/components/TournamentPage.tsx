@@ -25,7 +25,7 @@ export default function TournamentPage({ id }: Props) {
     const TournamentData: Tournament = data.data
     return (
       <div className=" flex flex-col min-h-screen mx-4 mt-6 lg:mx-10 lg:mt-10 gap-5">
-        <TournamentTop image="/hero.png" />
+        <TournamentTop image="/hero.png" tournament={TournamentData} />
         <div className="flex flex-col gap-4 lg:flex-row">
           <div className="order-2 lg:order-1 flex flex-col gap-4 lg:flex-[7]">
             <TournamentOverview tournament={TournamentData} />

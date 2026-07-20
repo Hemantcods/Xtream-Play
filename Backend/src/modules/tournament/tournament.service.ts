@@ -10,23 +10,16 @@ import {
 } from "./tournament.types.js";
 import { QueryFilter } from "mongoose";
 import { AppError } from "../../utils/AppError.js";
+import { CreateTournamentDto } from "./tournament.schema.js";
 
-export const createTournament = async (data: any, creator: any) => {
+export const createTournament = async (
+  data: CreateTournamentDto,
+  creator: mongoose.Types.ObjectId,
+) => {
   // Implementation for creating a tournament
   // it always get the verified data from the controller so no need to validate it here
-  const { name, game, entryFee, prizePool, mode, StartTime, maxPlayers } = data;
-  const createdBy = creator;
   // create a tournament in the database
-  const tournament = await Tournament.create({
-    name,
-    game,
-    entryFee,
-    prizePool,
-    mode,
-    StartTime,
-    maxPlayers,
-    createdBy,
-  });
+  const tournament = await Tournament.create({ ...data, createdBy: creator });
   return tournament;
 };
 
@@ -160,11 +153,11 @@ export const getAdminTournamentByIdService = async (id: string) => {
   if (!tournament) {
     throw new AppError("Tournament not Found", 404);
   }
-  const status = getTournamentStatus(tournament)
-  
+  const status = getTournamentStatus(tournament);
+
   return {
-      ...tournament,
-      status
+    ...tournament,
+    status,
   };
 };
 export const updateTournamentSevice = async (
@@ -216,13 +209,16 @@ export const DeleteTournamentService = async (id: string) => {
   }
   const tournament = await Tournament.findById(id);
   if (!tournament) {
-    throw new AppError("Tournament not found",404)
+    throw new AppError("Tournament not found", 404);
   }
   if (tournament.registeredPlayers > 0) {
-    throw new AppError("Cannot delete a tournament with registered players",400)
+    throw new AppError(
+      "Cannot delete a tournament with registered players",
+      400,
+    );
   }
   if (tournament.StartTime <= new Date()) {
-    throw new AppError("Tournament has alredy started",400)
+    throw new AppError("Tournament has alredy started", 400);
   }
-  await tournament.deleteOne()
+  await tournament.deleteOne();
 };

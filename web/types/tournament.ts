@@ -175,3 +175,10 @@ export interface TournamentSummary {
   entryFee: number;
   registrationEndsAt: string;
 }
+
+export enum Game {
+  FREEFIRE = "freefire",
+  BGMI = "bgmi",
+  COD = "cod",
+  OTHER = "other",
+}

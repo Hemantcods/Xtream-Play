@@ -4,7 +4,7 @@ import { authenticateUser, authorizeAdmin } from '../../middlewares/auth.middlew
 
 const router=express.Router()
 // admin routes
-router.post('/create',authenticateUser,authorizeAdmin,CreateTournament)
+router.post('/admin/create',authenticateUser,authorizeAdmin,CreateTournament)
 router.put('/update/:id',authenticateUser,authorizeAdmin,CreateTournament) // for updating the tournament details we can use the same controller as creating a tournament but we need to pass the tournament id in the request params and the updated data in the request body
 router.delete('/admin/:id',authenticateUser,authorizeAdmin,DeleteTournamentById)
 router.get('/admin/list', authenticateUser, authorizeAdmin, getAdminTournaments)

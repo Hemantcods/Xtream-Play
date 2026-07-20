@@ -17,7 +17,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import type { AdminTournament } from "@/types/admin";
+import type { CreateTournamentDto } from "@/types/admin";
+import { Game } from "@/types/tournament";
 
 export interface TournamentFormData {
   name: string;
@@ -41,21 +42,20 @@ export interface TournamentFormData {
 }
 
 interface TournamentFormProps {
-  initialValues?: Partial<AdminTournament>;
-  onSubmit: (data: TournamentFormData) => void;
+  initialValues?: Partial<CreateTournamentDto>;
+  onSubmit: (data: CreateTournamentDto) => void;
   loading?: boolean;
 }
 
-const defaultValues: TournamentFormData = {
+const defaultValues: CreateTournamentDto = {
   name: "",
-  game: "freefire",
+  game: Game.FREEFIRE,
   mode: { map: "", player: "squad", type: "Battle Royale" },
   PerEliminationPrize: 0,
   PlacementPrize: { first: 0, second: 0, third: 0 },
   entryFee: 0,
   prizePool: 0,
   maxPlayers: 64,
-  registrationEndsAt: "",
   StartTime: "",
 };
 
@@ -72,11 +72,11 @@ export default function TournamentForm({
   loading,
 }: TournamentFormProps) {
   const isEdit = !!initialValues;
-  const [form, setForm] = useState<TournamentFormData>(() => {
+  const [form, setForm] = useState<CreateTournamentDto>(() => {
     if (!initialValues) return defaultValues;
     return {
       name: initialValues.name ?? "",
-      game: initialValues.game ?? "freefire",
+      game: initialValues.game?? Game.FREEFIRE,
       mode: {
         map: initialValues.mode?.map ?? "",
         player: initialValues.mode?.player ?? "squad",
@@ -91,7 +91,6 @@ export default function TournamentForm({
       entryFee: initialValues.entryFee ?? 0,
       prizePool: initialValues.prizePool ?? 0,
       maxPlayers: initialValues.maxPlayers ?? 64,
-      registrationEndsAt: toLocalDatetime(initialValues.registrationEndsAt ?? ""),
       StartTime: toLocalDatetime(initialValues.StartTime ?? ""),
     };
   });
@@ -102,7 +101,7 @@ export default function TournamentForm({
     setForm((prev) => ({ ...prev, [key]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.SubmitEvent) => {
     e.preventDefault();
     onSubmit(form);
   };

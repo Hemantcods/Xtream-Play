@@ -1,3 +1,5 @@
+import { Game } from "./tournament";
+
 export interface AdminStats {
   totalUsers: number;
   activeTournaments: number;
@@ -129,4 +131,29 @@ export interface AdminUser {
   totalTournaments: number;
   totalEarnings: number;
   createdAt: string;
+}
+
+export interface CreateTournamentDto {
+  name: string;
+  game: Game;
+
+  mode: {
+    map: string;
+    player: "solo" | "duo" | "squad";
+    type: string;
+  };
+
+  entryFee: number;
+  prizePool: number;
+  maxPlayers: number;
+
+  StartTime: string;
+
+  PlacementPrize: {
+    first: number;
+    second: number;
+    third: number;
+  };
+
+  PerEliminationPrize?: number;
 }

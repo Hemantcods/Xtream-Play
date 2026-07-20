@@ -1,4 +1,4 @@
-import mongoose, { Document, ObjectId, Schema } from "mongoose";
+import mongoose, { Document, Types, Schema } from "mongoose";
 
 export enum Game {
   FREEFIRE = "freefire",
@@ -26,10 +26,10 @@ export interface ITournament extends Document {
   roomId?: string;
   roomPassword?: string;
   StartTime: Date;
-  winner?: ObjectId;
+  winner?: Types.ObjectId;
   maxPlayers: number;
   registeredPlayers: number;
-  createdBy?: ObjectId;
+  createdBy?: Types.ObjectId;
   PlacementPrize: {
     first: number;
     second: number;
