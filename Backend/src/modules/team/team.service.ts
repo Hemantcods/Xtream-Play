@@ -15,6 +15,9 @@ import {
 import { getTournamentStatus } from "../tournament/tournament.service.js";
 import { TournamentStatus } from "../tournament/tournament.types.js";
 import { Participant } from "../participant/participant.model.js";
+import { ensureTournamentRegistrationOpen } from "../tournament/tournament.helper.js";
+import { getTournamentRepo } from "../tournament/tournament.repository.js";
+import { UpdateTeamProfileDto } from "./team.validation.js";
 
 function updateRegistrationStatus(team: ITeam) {
   const memberCount = team.members.length;
@@ -156,13 +159,19 @@ export async function KickMemberService(
   if (!team) {
     throw new AppError("Only captains can remove members", 403);
   }
+  // check is tournament started or completed
+  const tournament = await getTournamentRepo(tournamentId);
+  if (!tournament) {
+    throw new AppError("Tournament not found", 409);
+  }
+  ensureTournamentRegistrationOpen(tournament);
   // dont allow captain to remove itself
   if (memberId.equals(userId)) {
-    throw new AppError("Capatin cannot remove themselves", 400);
+    throw new AppError("Captain cannot remove themselves", 400);
   }
   const member = team.members.find((member) => member.userId.equals(memberId));
   if (!member) {
-    throw new AppError("Memeber not found", 404);
+    throw new AppError("Member not found", 404);
   }
   // delete the member
   team.members = team.members.filter(
@@ -175,5 +184,77 @@ export async function KickMemberService(
   });
   // update regrestration status
   updateRegistrationStatus(team);
+  await team.save();
+}
+
+export async function LeaveTeamService(
+  tournamentId: mongoose.Types.ObjectId,
+  userId: mongoose.Types.ObjectId,
+): Promise<void> {
+  // find the team
+  const team = await findUserTeam(tournamentId, userId);
+  if (!team) {
+    throw new AppError("Team not found", 404);
+  }
+  // Tournament validation
+  const tournament = await getTournamentRepo(tournamentId);
+  if (!tournament) {
+    throw new AppError("Tournament not found", 404);
+  }
+  ensureTournamentRegistrationOpen(tournament);
+  // STAGE: 1 Captain  cannot leave the tournament
+  if (team.captainId.equals(userId)) {
+    throw new AppError(
+      "Captain cannot leave the team. Delete the team instead.",
+      400,
+    );
+  }
+  // now remove the member
+  team.members = team.members.filter((member) => !member.userId.equals(userId));
+  // Delete the participant
+  await Participant.deleteOne({
+    tournamentId,
+    userId,
+  });
+  // update registration
+  updateRegistrationStatus(team);
+
+  // save
+  await team.save();
+}
+
+export async function UpdateTeamProfileService(
+  tournamentId: mongoose.Types.ObjectId,
+  userId: mongoose.Types.ObjectId,
+  dto: UpdateTeamProfileDto,
+) {
+  const team = await findUserTeam(tournamentId, userId);
+  if (!team) {
+    throw new AppError("Team not found", 404);
+  }
+  const tournament = await getTournamentRepo(tournamentId);
+  if (!tournament) {
+    throw new AppError("Tournament not found", 404);
+  }
+  ensureTournamentRegistrationOpen(tournament);
+  const member = team.members.find((member) => member.userId.equals(userId));
+  if (!member) {
+    throw new AppError("Member not found", 404);
+  }
+  if (dto.inGameName !== undefined) {
+    member.inGameName = dto.inGameName;
+  }
+  if (dto.uid !== undefined) {
+    member.uid = dto.uid;
+  }
+
+  if (dto.teamName !== undefined) {
+    if (!team.captainId.equals(userId)) {
+      throw new AppError("Only captain can update team name", 403);
+    }
+
+    team.teamName = dto.teamName;
+  }
+
   await team.save();
 }

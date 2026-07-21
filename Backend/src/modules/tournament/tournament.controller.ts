@@ -20,6 +20,7 @@ import { AuthRequest } from "../../middlewares/auth.middleware.js";
 import { Participant } from "../participant/participant.model.js";
 import { UpdateTournamentSchema } from "./tournament.types.js";
 import { CreateTournamentSchema } from "./tournament.schema.js";
+import mongoose from "mongoose";
 
 export const CreateTournament = asyncHandler(
   async (req: AuthRequest, res: Response, next: NextFunction) => {
@@ -58,7 +59,8 @@ export const getTournamentById = asyncHandler(
     if (!id) {
       throw new AppError("Tournament id is required", 400);
     }
-    const tournament = await getTournament(id as string);
+    const tournamentObjectId = new mongoose.Types.ObjectId(id as string);
+    const tournament = await getTournament(tournamentObjectId);
     if (!tournament) {
       throw new AppError("Tournament not found", 404);
     }
@@ -101,8 +103,9 @@ export const StartTournament = asyncHandler(
     if (error) {
       throw new AppError(error, 400);
     }
+    const tournamentObjectId = new mongoose.Types.ObjectId(id as string);
     const { roomId, roomPassword } = req.body;
-    const tournament = await getTournament(id as string);
+    const tournament = await getTournament(tournamentObjectId);
     if (!tournament) {
       throw new AppError("Tournament not found", 404);
     }
@@ -127,7 +130,8 @@ export const EndTournament = asyncHandler(
     if (!id) {
       throw new AppError("Tournament id is required", 400);
     }
-    const tournament = await getTournament(id as string);
+    const tournamentObjectId = new mongoose.Types.ObjectId(id as string);
+    const tournament = await getTournament(tournamentObjectId);
     if (!tournament) {
       throw new AppError("Tournament not found", 404);
     }
@@ -151,7 +155,8 @@ export const Status = asyncHandler(
     if (!id) {
       throw new AppError("Tournament id is required", 400);
     }
-    const tournament = await getTournament(id as string);
+    const tournamentObjectId = new mongoose.Types.ObjectId(id as string);
+    const tournament = await getTournament(tournamentObjectId);
     if (!tournament) {
       throw new AppError("Tournament not found", 404);
     }

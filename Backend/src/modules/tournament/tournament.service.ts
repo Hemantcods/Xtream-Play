@@ -11,6 +11,7 @@ import {
 import { QueryFilter } from "mongoose";
 import { AppError } from "../../utils/AppError.js";
 import { CreateTournamentDto } from "./tournament.schema.js";
+import { getTournamentRepo } from "./tournament.repository.js";
 
 export const createTournament = async (
   data: CreateTournamentDto,
@@ -29,13 +30,13 @@ export const getTournaments = async () => {
   return tournaments;
 };
 
-export const getTournament = async (id: string) => {
+export const getTournament = async (id: mongoose.Types.ObjectId) => {
   if (!id) {
     throw new Error("Tournament id is required");
   }
-  const tournament = await Tournament.findOne({ _id: id }).select(
-    "-roomId -roomPassword",
-  );
+  const tournament = await getTournamentRepo(id)
+  delete tournament?.roomId;
+  delete tournament?.roomPassword
   return tournament;
 };
 export const getRegisteredPlayer = async (

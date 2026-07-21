@@ -1,8 +1,8 @@
 import { NextFunction, Response } from "express";
 import { AuthRequest } from "../../middlewares/auth.middleware.js";
 import { asyncHandler } from "../../utils/AsyncHandler.js";
-import { GetTournamentTeamParamsSchema, JoinTeamBodySchema, KickMeberSchema } from "./team.validation.js";
-import { getTeamService, JoinTeamViaInviteCodeService, KickMemberService } from "./team.service.js";
+import { GetTournamentTeamParamsSchema, JoinTeamBodySchema, KickMeberSchema, LeaveMemberSchema, updateTeamProfileSchema } from "./team.validation.js";
+import { getTeamService, JoinTeamViaInviteCodeService, KickMemberService, LeaveTeamService, UpdateTeamProfileService } from "./team.service.js";
 import { AppError } from "../../utils/AppError.js";
 import mongoose from "mongoose";
 
@@ -16,7 +16,7 @@ export const getTeamController = asyncHandler(async (req:AuthRequest,res:Respons
   const team = await getTeamService(tournamentObjectId, userId)
   res.status(200).json({
     success: true,
-    message: "fetched team sucessfully",
+    message: "Fetched team successfully",
     data:team
   })
 })
@@ -45,5 +45,32 @@ export const KickMember = asyncHandler(async (req: AuthRequest, res: Response, n
   res.status(200).json({
     success: true,
     message:"Member saved successfully"
+  })
+})
+
+export const LeaveTeam = asyncHandler(async (req: AuthRequest, res: Response) => {
+  const { tournamentId } = LeaveMemberSchema.parse(req.params)
+  const tournamentObjectId = new mongoose.Types.ObjectId(tournamentId);
+  if (!req.user) {
+    throw new AppError("Unauthorised",401)
+  }
+  await LeaveTeamService(tournamentObjectId, req.user._id)
+  res.status(200).json({
+    success: true,
+    message:"Left the team successfully"
+  })
+})
+
+export const UpdateTeamProfile = asyncHandler(async (req: AuthRequest,res: Response) => {
+  const { tournamentId } = GetTournamentTeamParamsSchema.parse(req.params)
+  const tournamentObjectId = new mongoose.Types.ObjectId(tournamentId);
+  const dto = updateTeamProfileSchema.parse(req.body)
+  if (!req.user) {
+    throw new AppError("Unauthorised",401)
+  }
+  await UpdateTeamProfileService(tournamentObjectId,req.user._id , dto)
+  res.status(200).json({
+    success: true,
+    message:"team profile updated successfully"
   })
 })

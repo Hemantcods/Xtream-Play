@@ -1,8 +1,6 @@
 import mongoose from "mongoose";
 import { PlayerMode } from "../tournament/tournament.model.js";
-import { ITeamMember } from "./team.model.js";
-
-export enum TeamRegistrationStatus {}
+import { ITeamMember } from "./team.model.js"
 export interface TeamDetailsResponse {
   id: mongoose.Types.ObjectId;
   teamName: string;
