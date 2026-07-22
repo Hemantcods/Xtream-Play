@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { loginUser, registerUser } from "../auth/auth.service.js";
+import { getMeService, loginUser, registerUser } from "../auth/auth.service.js";
 import { validateLogin, validateRegister } from "../auth/auth.validator.js";
 import { AppError } from "../../utils/AppError.js";
 import { asyncHandler } from "../../utils/AsyncHandler.js";
@@ -48,10 +48,11 @@ export const login = asyncHandler(
   },
 );
 export const getMe = asyncHandler(async (req: AuthRequest, res: Response) => {
+  const data=getMeService(req.user!)
   res.status(200).json({
     success: true,
     data: {
-      user: req.user,
+      user: data,
     },
   });
 });

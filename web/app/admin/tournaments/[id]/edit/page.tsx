@@ -6,14 +6,13 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { AlertTriangle } from "lucide-react";
 import PageHeader from "@/components/admin/common/PageHeader";
 import TournamentForm from "@/components/admin/forms/TournamentForm";
-import type { TournamentFormData } from "@/components/admin/forms/TournamentForm";
-import type { AdminTournament } from "@/types/admin";
+import type { AdminTournament, CreateTournamentDto } from "@/types/admin";
 import { useGetAdminTournamentQuery, useUpdateAdminTournamentMutation } from "@/store/api/adminApi";
 import { toast } from "sonner";
 
 function computeDiff(
   original: AdminTournament,
-  form: TournamentFormData,
+  form: CreateTournamentDto,
 ): Record<string, unknown> {
   const changes: Record<string, unknown> = {};
 
@@ -110,7 +109,7 @@ export default function EditTournamentPage({
     );
   }
 
-  const handleSubmit = async (data: TournamentFormData) => {
+  const handleSubmit = async (data: CreateTournamentDto) => {
     setSubmitting(true);
     try {
       const body = computeDiff(tournament, data);
@@ -137,7 +136,7 @@ export default function EditTournamentPage({
       />
 
       <TournamentForm
-        initialValues={tournament}
+        initialValues={tournament as Partial<CreateTournamentDto>}
         onSubmit={handleSubmit}
         loading={submitting}
       />

@@ -15,7 +15,6 @@ const statusConfig = {
 
 export default function TournamentSummaryCard({ summary }: TournamentSummaryCardProps) {
   const config = statusConfig[summary.status];
-
   return (
     <div className="rounded-2xl border border-white/10 bg-[#13192A] overflow-hidden">
       <div className="h-28 bg-gradient-to-br from-[#1F2937] via-[#28354F] to-[#101726]" />

@@ -182,3 +182,9 @@ export enum Game {
   COD = "cod",
   OTHER = "other",
 }
+
+export enum PlayerMode {
+  SOLO = "solo",
+  DUO = "duo",
+  SQUAD = "squad",
+}

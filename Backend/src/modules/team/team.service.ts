@@ -73,16 +73,14 @@ export async function getTeamService(
   userId: mongoose.Types.ObjectId,
 ): Promise<TeamDetailsResponse> {
   // find the team where the user is a member
-  const team = await findUserTeam(tournamentId, userId).populate({
-    path: "members.userId",
-    select: "name username",
-  });
+  const team = await findUserTeam(tournamentId, userId)
   // if team doesnt exists
   if (!team) {
     throw new AppError("Team not Found", 404);
   }
   return {
     id: team._id,
+    captainId: team.captainId,
     teamName: team.teamName,
     inviteCode: team.inviteCode,
     mode: team.mode,

@@ -8,7 +8,6 @@ import TournamentTabs, {
   type TabItem,
 } from "@/components/my-tournaments/TournamentTabs";
 import StatsCard from "@/components/my-tournaments/StatsCard";
-import UpcomingMatchesCard from "@/components/my-tournaments/UpcomingMatchesCard";
 import SupportCard from "@/components/my-tournaments/SupportCard";
 import NotesCard from "@/components/my-tournaments/NotesCard";
 import { useGetUserTournamentsQuery } from "@/store/api/tournamentApi";

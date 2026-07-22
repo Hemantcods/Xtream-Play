@@ -12,6 +12,7 @@ import TournamentSummaryCard from "@/components/registered-teams/TournamentSumma
 import TournamentStatsCard from "@/components/registered-teams/TournamentStatsCard";
 import HelpCard from "@/components/registered-teams/HelpCard";
 import NotesCard from "@/components/registered-teams/NotesCard";
+import TeamManagementCard from "@/components/registered-teams/TeamManagementCard";
 import { useGetRegisteredTeamsQuery } from "@/store/api/participantApi";
 const PAGE_SIZE = 10;
 
@@ -134,6 +135,9 @@ export default function RegisteredTeamsPage() {
           <aside className="hidden w-80 shrink-0 flex-col gap-4 lg:flex ">
             {summary && <TournamentSummaryCard summary={summary} />}
             {summary && <TournamentStatsCard summary={summary} />}
+            {summary && summary.mode !== "solo" && (
+              <TeamManagementCard tournamentId={tournamentId} />
+            )}
             <HelpCard />
             {/*<NotesCard notes={mockNotes} />*/}
           </aside>

@@ -7,7 +7,8 @@ export const baseApi = createApi({
   tagTypes: [
     'Auth',
     'Tournament',
-    'Admin'
+    'Admin',
+    "Team"
   ],
   endpoints:()=>({})
 })

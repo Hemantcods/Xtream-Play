@@ -19,28 +19,6 @@ import {
 } from "@/components/ui/card";
 import type { CreateTournamentDto } from "@/types/admin";
 import { Game } from "@/types/tournament";
-
-export interface TournamentFormData {
-  name: string;
-  game: string;
-  mode: {
-    map: string;
-    player: "solo" | "duo" | "squad";
-    type: string;
-  };
-  PerEliminationPrize: number;
-  PlacementPrize?: {
-    first?: number;
-    second?: number;
-    third?: number;
-  };
-  entryFee: number;
-  prizePool: number;
-  maxPlayers: number;
-  registrationEndsAt: string;
-  StartTime: string;
-}
-
 interface TournamentFormProps {
   initialValues?: Partial<CreateTournamentDto>;
   onSubmit: (data: CreateTournamentDto) => void;
@@ -94,9 +72,9 @@ export default function TournamentForm({
       StartTime: toLocalDatetime(initialValues.StartTime ?? ""),
     };
   });
-  const update = <K extends keyof TournamentFormData>(
+  const update = <K extends keyof CreateTournamentDto>(
     key: K,
-    value: TournamentFormData[K],
+    value: CreateTournamentDto[K],
   ) => {
     setForm((prev) => ({ ...prev, [key]: value }));
   };
@@ -128,7 +106,7 @@ export default function TournamentForm({
             <Label htmlFor="game">Game</Label>
             <Select
               value={form.game}
-              onValueChange={(v) => update("game", v)}
+              onValueChange={(v) => update("game", v as Game)}
             >
               <SelectTrigger id="game">
                 <SelectValue placeholder="Select game" />

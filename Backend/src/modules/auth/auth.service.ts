@@ -1,7 +1,7 @@
 import { AppError } from "../../utils/AppError.js";
 import { buildConditions } from "../../utils/helpers.js";
 import { generateAccessToken, generateRefreshToken } from "../../utils/jwt.js";
-import { User } from "../user/user.model.js";
+import { IUser, User } from "../user/user.model.js";
 
 export const registerUser = async (data: {
   name: string;
@@ -82,3 +82,12 @@ export const loginUser = async (data: {
     refreshToken,
   };
 };
+export const getMeService = (user:IUser) => {
+  return {
+    id: user._id,
+    name: user.name,
+    email: user.email,
+    phone: user.phone,
+    role:user.role,
+  }
+}

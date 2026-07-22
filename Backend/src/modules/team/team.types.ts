@@ -3,6 +3,7 @@ import { PlayerMode } from "../tournament/tournament.model.js";
 import { ITeamMember } from "./team.model.js"
 export interface TeamDetailsResponse {
   id: mongoose.Types.ObjectId;
+  captainId: mongoose.Types.ObjectId;
   teamName: string;
   inviteCode: string;
   mode: PlayerMode;
