@@ -11,7 +11,11 @@ import type {
   CreateTournamentDto,
 } from "@/types/admin";
 import { baseApi } from "./baseApi";
-
+interface ApiResponse<T> {
+  success: boolean;
+  message: string;
+  data: T;
+}
 export const adminApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     getAdminStats: builder.query<{ success: boolean; data: AdminStats }, void>({
@@ -102,33 +106,24 @@ export const adminApi = baseApi.injectEndpoints({
         "Admin",
       ],
     }),
-
-    endTournament: builder.mutation<
-      { success: boolean; message: string },
-      string
-    >({
-      query: (id) => ({
-        url: `/admin/tournaments/${id}/end`,
-        method: "POST",
-      }),
-      invalidatesTags: (_result, _error, id) => [
-        { type: "Admin", id },
-        "Admin",
-      ],
-    }),
-
     assignRoom: builder.mutation<
-      { success: boolean; data: { roomId: string; roomPassword: string } },
-      { id: string; roomId: string; roomPassword: string }
+      ApiResponse<void>,
+      {
+        tournamentId: string;
+        body: {
+          roomId: string;
+          roomPassword: string;
+        };
+      }
     >({
-      query: ({ id, ...body }) => ({
-        url: `/admin/tournaments/${id}/room`,
-        method: "POST",
+      query: ({ tournamentId, body }) => ({
+        url: `tournaments/admin/assign/${tournamentId}`,
+        method: "PATCH",
         body,
       }),
-      invalidatesTags: (_result, _error, { id }) => [
-        { type: "Admin", id },
-        "Admin",
+      invalidatesTags: (_result, _error, { tournamentId }) => [
+        { type: "Tournament", id: tournamentId },
+        {type:"Admin",id:tournamentId}
       ],
     }),
 
@@ -218,7 +213,6 @@ export const {
   useUpdateAdminTournamentMutation,
   useDeleteAdminTournamentMutation,
   useStartTournamentMutation,
-  useEndTournamentMutation,
   useAssignRoomMutation,
   useGetAdminParticipantsQuery,
   useGetAdminTeamsQuery,
