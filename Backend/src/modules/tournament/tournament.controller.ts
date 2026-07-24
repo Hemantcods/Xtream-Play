@@ -6,6 +6,7 @@ import {
   validateStartTournament,
 } from "./tournament.validator.js";
 import {
+  AssignRoomService,
   createTournament,
   DeleteTournamentService,
   getAdminTournamentByIdService,
@@ -19,15 +20,15 @@ import {
 import { AuthRequest } from "../../middlewares/auth.middleware.js";
 import { Participant } from "../participant/participant.model.js";
 import { UpdateTournamentSchema } from "./tournament.types.js";
-import { CreateTournamentSchema } from "./tournament.schema.js";
+import { AssignRoomSchema, CreateTournamentSchema, TournamentIdParamsSchema } from "./tournament.schema.js";
 import mongoose from "mongoose";
 
 export const CreateTournament = asyncHandler(
   async (req: AuthRequest, res: Response, next: NextFunction) => {
-    const validatedData=CreateTournamentSchema.parse(req.body)
+    const validatedData = CreateTournamentSchema.parse(req.body);
     const id = req.user?._id;
     if (!id) {
-      throw new AppError("Authentication Error",401)
+      throw new AppError("Authentication Error", 401);
     }
     // for testing purpose we are using a dummy id but in real application we will get the id from the verified token of the user who is creating the tournament
     const tournament = await createTournament(validatedData, id);
@@ -85,7 +86,7 @@ export const DeleteTournamentById = asyncHandler(
     if (Array.isArray(id)) {
       throw new AppError("Invalid tournament id", 400);
     }
-    await DeleteTournamentService(id)
+    await DeleteTournamentService(id);
     res.status(200).json({
       success: true,
       message: "Tournament deleted successfully",
@@ -95,56 +96,23 @@ export const DeleteTournamentById = asyncHandler(
 
 export const StartTournament = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
-    const { id } = req.params;
-    if (!id) {
-      throw new AppError("Tournament id is required", 400);
-    }
-    const error = validateStartTournament(req.body);
-    if (error) {
-      throw new AppError(error, 400);
-    }
-    const tournamentObjectId = new mongoose.Types.ObjectId(id as string);
-    const { roomId, roomPassword } = req.body;
-    const tournament = await getTournament(tournamentObjectId);
-    if (!tournament) {
-      throw new AppError("Tournament not found", 404);
-    }
-    if (tournament.StartTime > new Date()) {
-      throw new AppError("Tournament has not started yet, cannot start", 400);
-    }
-    // logic for starting the tournament
-    tournament.roomId = roomId;
-    tournament.roomPassword = roomPassword;
-    await tournament.save();
+    const {id}=TournamentIdParamsSchema.parse(req.params)
+    const {roomId,roomPassword } = AssignRoomSchema.parse(req.body)
+    await AssignRoomService(new mongoose.Types.ObjectId(id),roomId,roomPassword)
     res.status(200).json({
       success: true,
       message: "Tournament started successfully",
-      tournament,
     });
   },
 );
 
 export const EndTournament = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
-    const { id } = req.params;
-    if (!id) {
-      throw new AppError("Tournament id is required", 400);
-    }
-    const tournamentObjectId = new mongoose.Types.ObjectId(id as string);
-    const tournament = await getTournament(tournamentObjectId);
-    if (!tournament) {
-      throw new AppError("Tournament not found", 404);
-    }
-    if (tournament.StartTime > new Date()) {
-      throw new AppError("Tournament has not started yet, cannot end", 400);
-    }
-    // logic for ending the tournament
-    tournament.isCompleted = true;
-    await tournament.save();
+    const { id } = TournamentIdParamsSchema.parse(req.params)
+    
     res.status(200).json({
       success: true,
       message: "Tournament ended successfully",
-      tournament,
     });
   },
 );

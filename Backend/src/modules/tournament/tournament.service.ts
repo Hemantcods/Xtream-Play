@@ -26,7 +26,12 @@ export const createTournament = async (
 
 export const getTournaments = async () => {
   // Implementation for getting all tournaments
-  const tournaments = await Tournament.find();
+  const tournaments = await Tournament.find({
+    isCompleted: false,
+    StartTime: { $gt: new Date() },
+  }).sort({
+    StartTime: 1,
+  });
   return tournaments;
 };
 
@@ -34,9 +39,9 @@ export const getTournament = async (id: mongoose.Types.ObjectId) => {
   if (!id) {
     throw new Error("Tournament id is required");
   }
-  const tournament = await getTournamentRepo(id)
+  const tournament = await getTournamentRepo(id);
   delete tournament?.roomId;
-  delete tournament?.roomPassword
+  delete tournament?.roomPassword;
   return tournament;
 };
 export const getRegisteredPlayer = async (
@@ -222,4 +227,47 @@ export const DeleteTournamentService = async (id: string) => {
     throw new AppError("Tournament has alredy started", 400);
   }
   await tournament.deleteOne();
+};
+export const AssignRoomService = async (
+  tournamentId: mongoose.Types.ObjectId,
+  roomId: string,
+  roomPassword: string,
+) => {
+  const tournament = await getTournamentRepo(tournamentId);
+  if (!tournament) {
+    throw new AppError("Tournament not found", 401);
+  }
+  if (tournament.isCompleted) {
+    throw new AppError("Tournament has already completed", 400);
+  }
+  if (!roomId.trim()) {
+    throw new AppError("Room ID is required", 400);
+  }
+
+  if (!roomPassword.trim()) {
+    throw new AppError("Room password is required", 400);
+  }
+  tournament.roomId = roomId.trim();
+  tournament.roomPassword = roomPassword.trim();
+  await tournament.save();
+};
+export const EndTournamentService = async (
+  tournamentId: mongoose.Types.ObjectId,
+) => {
+  const tournament = await getTournamentRepo(tournamentId);
+  if (!tournament) {
+    throw new AppError("Tournament not found", 404);
+  }
+  if (tournament.isCompleted) {
+    throw new AppError("Tournament is already completed", 400);
+  }
+
+  if (tournament.StartTime > new Date()) {
+    throw new AppError("Tournament has not started yet, cannot end", 400);
+  }
+  if (!tournament.roomId || !tournament.roomPassword) {
+    throw new AppError("Tournament room details have not been assigned", 400);
+  }
+  tournament.isCompleted = true;
+  await tournament.save();
 };

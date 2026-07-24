@@ -13,7 +13,6 @@ import {
   getReservedPlayerCount,
 } from "../team/team.service.js";
 import { Team } from "../team/team.model.js";
-import { title } from "process";
 
 export const RegisterTournamentService = async (
   tournamentId: mongoose.Types.ObjectId,

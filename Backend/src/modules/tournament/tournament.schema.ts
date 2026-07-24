@@ -1,5 +1,6 @@
 import z from "zod";
 import { Game, PlayerMode } from "./tournament.model.js";
+import mongoose from "mongoose";
 
 export const CreateTournamentSchema = z
   .object({
@@ -29,3 +30,24 @@ export const CreateTournamentSchema = z
   })
   .strict();
 export type CreateTournamentDto = z.infer<typeof CreateTournamentSchema>;
+
+export const AssignRoomSchema = z.object({
+  roomId: z
+    .string()
+    .trim()
+    .min(1, "Room ID is too short")
+    .max(50, "Room ID is too long"),
+  roomPassword: z
+    .string()
+    .trim()
+    .min(1, "Room password is too short")
+    .max(50, "Room password is too long"),
+});
+export const TournamentIdParamsSchema = z.object({
+  id: z.string().refine(
+    (id) => mongoose.Types.ObjectId.isValid(id),
+    {
+      message: "Invalid tournament id",
+    },
+  ),
+});

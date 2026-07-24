@@ -19,8 +19,9 @@ export interface ITeam extends Document {
   paymentStatus: "PENDING" | "PAID";
   stats: {
     kills: number;
-    rank: number;
+    placement: number;
     points: number;
+    earnings: number;
   };
   registrationStatus: "WAITING" | "PARTIAL" | "FULL";
   amountPaid: number;
@@ -79,7 +80,7 @@ const TeamSchema = new Schema<ITeam>(
         type: Number,
         default: 0,
       },
-      rank: {
+      placement: {
         type: Number,
         default: null,
       },
@@ -87,6 +88,10 @@ const TeamSchema = new Schema<ITeam>(
         type: Number,
         default: 0,
       },
+      earnings: {
+        type: Number,
+        default:0
+      }
     },
     mode: {
       type: String,

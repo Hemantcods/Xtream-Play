@@ -9,10 +9,9 @@ router.put('/update/:id',authenticateUser,authorizeAdmin,CreateTournament) // fo
 router.delete('/admin/:id',authenticateUser,authorizeAdmin,DeleteTournamentById)
 router.get('/admin/list', authenticateUser, authorizeAdmin, getAdminTournaments)
 router.get('/admin/:id', authenticateUser, authorizeAdmin, getTournamentByIdAdmin)
-router.patch('/admin/:id',authenticateUser,authorizeAdmin,updateTournamentAdmin)
-// admin routes for start and end a tournament
-router.post('/start/:id',authenticateUser,authorizeAdmin,StartTournament) // for starting a tournament we can use the same controller as creating a tournament but we need to pass the tournament id in the request params and the room id and room password in the request body
-router.post('/end/:id', authenticateUser, authorizeAdmin, EndTournament) 
+router.patch('/admin/:id', authenticateUser, authorizeAdmin, updateTournamentAdmin)
+router.patch('/admin/assign/:id',authenticateUser,authorizeAdmin,StartTournament)
+// router.post('/end/:id', authenticateUser, authorizeAdmin, EndTournament) removed for now becusde planned to update end tournament when result declared
 // public routes
 router.get('/',getAllTournaments)
 router.get('/joined',authenticateUser,getUserTournaments)

@@ -24,7 +24,7 @@ interface TournamentTableProps {
   onStart?: (id: string) => void;
   onEnd?: (id: string) => void;
   onDelete?: (id: string) => void;
-  onAssignRoom?: (id: string) => void;
+  onAssignRoom?: (tournament:AdminTournament) => void;
 }
 
 export default function TournamentTable({
@@ -132,7 +132,7 @@ export default function TournamentTable({
             {
               label: "Assign Room",
               icon: DoorOpen,
-              onClick: () => onAssignRoom?.(t._id),
+              onClick: () => onAssignRoom?.(t),
             },
             {
               label: "Start",
