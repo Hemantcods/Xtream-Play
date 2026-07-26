@@ -15,12 +15,13 @@ import {
   getTournament,
   getTournaments,
   getUserTournamentsService,
+  UpdateResultsService,
   updateTournamentSevice,
 } from "./tournament.service.js";
 import { AuthRequest } from "../../middlewares/auth.middleware.js";
 import { Participant } from "../participant/participant.model.js";
 import { UpdateTournamentSchema } from "./tournament.types.js";
-import { AssignRoomSchema, CreateTournamentSchema, TournamentIdParamsSchema } from "./tournament.schema.js";
+import { AssignRoomSchema, CreateTournamentSchema, TournamentIdParamsSchema, UpdateTournamentsResultSchema } from "./tournament.schema.js";
 import mongoose from "mongoose";
 
 export const CreateTournament = asyncHandler(
@@ -201,3 +202,13 @@ export const updateTournamentAdmin = asyncHandler(
     });
   },
 );
+export const updateResults = asyncHandler(async (req: Request, res: Response) => {
+  const { id } = TournamentIdParamsSchema.parse(req.params)
+  
+  const results = UpdateTournamentsResultSchema.parse(req.body.results)
+  await UpdateResultsService(new mongoose.Types.ObjectId(id), results)
+  res.status(200).json({
+    success: true,
+    message:"results updated successfully"
+  })
+})

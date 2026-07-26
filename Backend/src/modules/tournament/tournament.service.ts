@@ -10,8 +10,15 @@ import {
 } from "./tournament.types.js";
 import { QueryFilter } from "mongoose";
 import { AppError } from "../../utils/AppError.js";
-import { CreateTournamentDto } from "./tournament.schema.js";
+import {
+  CreateTournamentDto,
+  UpdateTournamentsResultDto,
+} from "./tournament.schema.js";
 import { getTournamentRepo } from "./tournament.repository.js";
+import {
+  findTeamsByIds,
+  updateBulkResultsRepo,
+} from "../team/team.repository.js";
 
 export const createTournament = async (
   data: CreateTournamentDto,
@@ -34,7 +41,6 @@ export const getTournaments = async () => {
   });
   return tournaments;
 };
-
 export const getTournament = async (id: mongoose.Types.ObjectId) => {
   if (!id) {
     throw new Error("Tournament id is required");
@@ -57,7 +63,6 @@ export const getRegisteredPlayer = async (
   });
   return registeredPlayer * MaxPlayerPerTeam;
 };
-
 export const getUserTournamentsService = async (userId: Types.ObjectId) => {
   const participants = await Participant.find({ userId } as any)
     .populate("tournamentId")
@@ -270,4 +275,45 @@ export const EndTournamentService = async (
   }
   tournament.isCompleted = true;
   await tournament.save();
+};
+export const UpdateResultsService = async (
+  tournamentId: mongoose.Types.ObjectId,
+  results: UpdateTournamentsResultDto,
+) => {
+  const tournament = await getTournamentRepo(tournamentId);
+  if (!tournament) {
+    throw new AppError("Tournament not found", 404);
+  }
+  if (tournament.isCompleted) {
+    throw new AppError("Tournament is already completed", 400);
+  }
+  if (tournament.StartTime > new Date()) {
+    throw new AppError("Tournament has not started yet.", 400);
+  }
+  const teamIds = results.map((r) => r.teamId.toString());
+  // Duplicate teamId check
+  if (new Set(teamIds).size !== teamIds.length) {
+    throw new AppError("Duplicate Team Id found", 400);
+  }
+  // Duplicate Placement check
+  const placements = results.map((r) => r.placement);
+  if (new Set(placements).size !== placements.length) {
+    throw new AppError("Duplicate placements found.", 400);
+  }
+  const teams = await findTeamsByIds(teamIds);
+
+  if (teams.length !== teamIds.length) {
+    throw new AppError("Some teams were not found", 404);
+  }
+  const invalidTeam = teams.find(
+    (team) => !team.tournamentId.equals(tournamentId),
+  );
+  if (invalidTeam) {
+    throw new AppError(
+      "One or more teams do not belong to this tournament.",
+      400,
+    );
+  }
+  await updateBulkResultsRepo(results);
+  return;
 };

@@ -51,3 +51,11 @@ export const TournamentIdParamsSchema = z.object({
     },
   ),
 });
+export const TeamResultSchema = z.object({
+  teamId: z.string().min(1),
+  placement: z.number().int().min(1),
+  kills: z.number().min(0, "Kills entered is invalid"),
+  points: z.number().min(0,"Please enter valid points")
+})
+export const UpdateTournamentsResultSchema = z.array(TeamResultSchema)
+export type UpdateTournamentsResultDto=z.infer<typeof UpdateTournamentsResultSchema>

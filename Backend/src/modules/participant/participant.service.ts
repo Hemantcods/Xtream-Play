@@ -201,15 +201,17 @@ export const GetParticipantsService = async (
 export const getRegisteredTeamsService = async (
   tournamentId: mongoose.Types.ObjectId,
   userId: mongoose.Types.ObjectId,
+  isAdmin = false,
 ) => {
+  if (!isAdmin) {
   // Check user joined this tournament
-  const participant = await Participant.findOne({
-    tournamentId,
-    userId,
-  });
-  console.log(userId, tournamentId);
-  if (!participant) {
-    throw new AppError("You are not registered in this tournament", 403);
+    const participant = await Participant.findOne({
+      tournamentId,
+      userId,
+    });
+    if (!participant) {
+      throw new AppError("You are not registered in this tournament", 403);
+    }
   }
   const tournament = await Tournament.findOne({ _id: tournamentId });
   if (!tournament) {
@@ -221,30 +223,33 @@ export const getRegisteredTeamsService = async (
     totalPoints: -1,
   });
   const summary = {
-      _id: tournament._id,
-      title: tournament.name,
-      game: tournament.game,
-      mode: tournament.mode.player,
-      status: tournament.isCompleted
-        ? "completed"
-        : tournament.StartTime <= new Date()
+    _id: tournament._id,
+    title: tournament.name,
+    game: tournament.game,
+    mode: tournament.mode.player,
+    status: tournament.isCompleted
+      ? "completed"
+      : tournament.StartTime <= new Date()
         ? "live"
         : "upcoming",
-      registeredPlayers: tournament.registeredPlayers,
-      maxPlayers: tournament.maxPlayers,
-      prizePool: tournament.prizePool,
-      entryFee: tournament.entryFee,
-      registrationEndsAt: tournament.StartTime,
-    };
+    registeredPlayers: tournament.registeredPlayers,
+    maxPlayers: tournament.maxPlayers,
+    prizePool: tournament.prizePool,
+    entryFee: tournament.entryFee,
+    registrationEndsAt: tournament.StartTime,
+  };
   const registeredTeams = teams.map((team) => ({
     _id: team._id,
     teamName: team.teamName,
-    totalPoints: team.stats.points ?? 0,
-    status: 'confirmed',
-    registeredAt:team.createdAt
+    totalPoints: isAdmin || tournament.isCompleted ? team.stats.points : 0,
+    kills: isAdmin || tournament.isCompleted ? team.stats.kills : 0,
+    placement: isAdmin || tournament.isCompleted ? team.stats.placement:0,
+    earnings: isAdmin || tournament.isCompleted ? team.stats.earnings : 0,
+    status: "confirmed",
+    registeredAt: team.createdAt,
   }));
   return {
     summary,
-    teams:registeredTeams
+    teams: registeredTeams,
   };
 };

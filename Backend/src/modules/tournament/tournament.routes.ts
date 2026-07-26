@@ -1,5 +1,5 @@
 import express from 'express'
-import { CreateTournament, DeleteTournamentById, EndTournament, getAdminTournaments, getAllTournaments, getTournamentById, getTournamentByIdAdmin, getUserTournaments, StartTournament, Status, updateTournamentAdmin } from './tournament.controller.js'
+import { CreateTournament, DeleteTournamentById, EndTournament, getAdminTournaments, getAllTournaments, getTournamentById, getTournamentByIdAdmin, getUserTournaments, StartTournament, Status, updateResults, updateTournamentAdmin } from './tournament.controller.js'
 import { authenticateUser, authorizeAdmin } from '../../middlewares/auth.middleware.js'
 
 const router=express.Router()
@@ -10,7 +10,8 @@ router.delete('/admin/:id',authenticateUser,authorizeAdmin,DeleteTournamentById)
 router.get('/admin/list', authenticateUser, authorizeAdmin, getAdminTournaments)
 router.get('/admin/:id', authenticateUser, authorizeAdmin, getTournamentByIdAdmin)
 router.patch('/admin/:id', authenticateUser, authorizeAdmin, updateTournamentAdmin)
-router.patch('/admin/assign/:id',authenticateUser,authorizeAdmin,StartTournament)
+router.patch('/admin/assign/:id', authenticateUser, authorizeAdmin, StartTournament)
+router.patch('/admin/:id/result',authenticateUser,authorizeAdmin,updateResults)
 // router.post('/end/:id', authenticateUser, authorizeAdmin, EndTournament) removed for now becusde planned to update end tournament when result declared
 // public routes
 router.get('/',getAllTournaments)
