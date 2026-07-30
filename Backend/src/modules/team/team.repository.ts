@@ -55,6 +55,32 @@ export const updateBulkResultsRepo = (
         },
       },
     })),
-    {session}
+    { session },
+  );
+};
+export const getTeamsByTournament = (
+  tournamentId: mongoose.Types.ObjectId,
+  session: mongoose.ClientSession,
+) => {
+  return Team.find({ tournamentId }).session(session ?? null);
+};
+export const bulkUpdateTeamEarningsRepo = async (
+  teamEarnings: { teamId: mongoose.Types.ObjectId; earnings: number }[],
+  session?: mongoose.ClientSession,
+) => {
+  return Team.bulkWrite(
+    teamEarnings.map((team) => ({
+      updateOne: {
+        filter: {
+          _id: team.teamId,
+        },
+        update: {
+          $set: {
+            "stats.earnings": team.earnings,
+          },
+        },
+      },
+    })),
+    { session },
   );
 };

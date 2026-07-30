@@ -15,6 +15,7 @@ import {
   getTournament,
   getTournaments,
   getUserTournamentsService,
+  PublishResultsService,
   UpdateResultsService,
   updateTournamentSevice,
 } from "./tournament.service.js";
@@ -210,5 +211,14 @@ export const updateResults = asyncHandler(async (req: Request, res: Response) =>
   res.status(200).json({
     success: true,
     message:"results updated successfully"
+  })
+})
+export const PublishResultController = asyncHandler(async (req: Request, res: Response) => {
+  const tournamatId = new mongoose.Types.ObjectId(TournamentIdParamsSchema.parse(req.params).id)
+  await PublishResultsService(tournamatId)
+
+  res.status(200).json({
+    success: true,
+    message:"Results Published Successfully"
   })
 })

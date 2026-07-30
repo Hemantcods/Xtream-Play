@@ -133,6 +133,13 @@ export interface AdminUser {
   createdAt: string;
 }
 
+export interface TeamResult {
+  teamId: string;
+  placement: number;
+  kills: number;
+  points: number;
+}
+
 export interface CreateTournamentDto {
   name: string;
   game: Game;
@@ -156,4 +163,27 @@ export interface CreateTournamentDto {
   };
 
   PerEliminationPrize?: number;
+}
+
+export interface TeamTournamentSummary{
+  _id: string,
+  title: string,
+  game: string,
+  mode: string,
+  status: string,
+  registeredPlayers: number,
+  maxPlayers: number,
+  prizepool: number,
+  entryFee: number,
+  registrationEndsAt:Date
+}
+export interface TeamAdmin{
+  _id: string,
+  teamName: string,
+  totalPoints: number,
+  kills: number,
+  placement: number,
+  earnings: number,
+  status: string,
+  registeredAt:Date
 }

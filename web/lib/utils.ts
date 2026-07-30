@@ -40,3 +40,14 @@ export function getErrorMessage(
 
   return "Something went wrong";
 }
+
+export function calculateScore(
+  mode: "solo" | "duo" | "squad",
+  placement: number,
+  kills: number,
+): number {
+  const perKillPoint = 1;
+  if (mode === "squad") return (13 - placement) + kills * perKillPoint;
+  if (mode === "duo") return (25 - placement) / 2 + kills * perKillPoint;
+  return (48 - placement) / 4 + kills * perKillPoint;
+}

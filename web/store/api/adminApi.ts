@@ -9,6 +9,9 @@ import type {
   AdminUser,
   AdminTournamentListResponse,
   CreateTournamentDto,
+  TeamResult,
+  TeamTournamentSummary,
+  TeamAdmin,
 } from "@/types/admin";
 import { baseApi } from "./baseApi";
 interface ApiResponse<T> {
@@ -139,12 +142,15 @@ export const adminApi = baseApi.injectEndpoints({
     }),
 
     getAdminTeams: builder.query<
-      { success: boolean; data: AdminTeam[] },
+      ApiResponse<{
+        summary: TeamTournamentSummary,
+        teams:TeamAdmin[]
+      }>,
       string
     >({
-      query: (tournamentId) => `/admin/tournaments/${tournamentId}/teams`,
+      query: (tournamentId) => `participants/admin/${tournamentId}/teams`,
       providesTags: (_result, _error, tournamentId) => [
-        { type: "Admin", id: tournamentId },
+        { type: "Tournament", id: tournamentId },
       ],
     }),
 
@@ -194,6 +200,36 @@ export const adminApi = baseApi.injectEndpoints({
       },
     ),
 
+    draftResults: builder.mutation<
+      { success: boolean; message: string },
+      { tournamentId: string; results: TeamResult[] }
+    >({
+      query: ({ tournamentId, results }) => ({
+        url: `/tournaments/admin/${tournamentId}/result`,
+        method: "PATCH",
+        body: { results },
+      }),
+      invalidatesTags: (_result, _error, { tournamentId }) => [
+        { type: "Admin", id: tournamentId },
+        "Admin",
+      ],
+    }),
+
+    publishResults: builder.mutation<
+      { success: boolean; message: string },
+      { tournamentId: string; results: TeamResult[] }
+    >({
+      query: ({ tournamentId, results }) => ({
+        url: `/tournaments/admin/${tournamentId}/result/publish`,
+        method: "POST",
+        body: { results },
+      }),
+      invalidatesTags: (_result, _error, { tournamentId }) => [
+        { type: "Admin", id: tournamentId },
+        "Admin",
+      ],
+    }),
+
     getAdminUsers: builder.query<{ success: boolean; data: AdminUser[] }, void>(
       {
         query: () => "/admin/users",
@@ -220,5 +256,7 @@ export const {
   useUpdateLeaderboardMutation,
   useDisqualifyTeamMutation,
   useDeleteTeamMutation,
+  useDraftResultsMutation,
+  usePublishResultsMutation,
   useGetAdminUsersQuery,
 } = adminApi;

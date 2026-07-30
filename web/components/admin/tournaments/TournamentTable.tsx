@@ -8,6 +8,7 @@ import {
   Play,
   Square,
   Trash2,
+  Trophy,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -25,6 +26,7 @@ interface TournamentTableProps {
   onEnd?: (id: string) => void;
   onDelete?: (id: string) => void;
   onAssignRoom?: (tournament:AdminTournament) => void;
+  onResults?: (id: string) => void;
 }
 
 export default function TournamentTable({
@@ -34,6 +36,7 @@ export default function TournamentTable({
   onEnd,
   onDelete,
   onAssignRoom,
+  onResults,
 }: TournamentTableProps) {
   const router = useRouter();
   const [search, setSearch] = useState("");
@@ -143,6 +146,11 @@ export default function TournamentTable({
               label: "End",
               icon: Square,
               onClick: () => onEnd?.(t._id),
+            },
+            {
+              label: "Results",
+              icon: Trophy,
+              onClick: () => onResults?.(t._id),
             },
             {
               label: "Delete",

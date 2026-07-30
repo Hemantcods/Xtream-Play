@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { Tournament } from "../tournament/tournament.model.js";
+import { PlayerMode, Tournament } from "../tournament/tournament.model.js";
 import { Participant } from "./participant.model.js";
 import { AppError } from "../../utils/AppError.js";
 import {
@@ -13,6 +13,7 @@ import {
   getReservedPlayerCount,
 } from "../team/team.service.js";
 import { Team } from "../team/team.model.js";
+import { kill } from "process";
 
 export const RegisterTournamentService = async (
   tournamentId: mongoose.Types.ObjectId,
@@ -253,3 +254,16 @@ export const getRegisteredTeamsService = async (
     teams: registeredTeams,
   };
 };
+
+export const CalculateScore = (mode: PlayerMode, placement:number, kills:number) => {
+  const PerkillPoint=1
+  if (mode == PlayerMode.SQUAD) {
+    return (13-placement)+(kills)*PerkillPoint
+  }
+  if (mode == PlayerMode.DUO) {
+    return (25-placement)/2+(kills)*PerkillPoint
+  }
+  if (mode == PlayerMode.SOLO) {
+    return (48-placement)/4 +(kills)*PerkillPoint
+  }
+}

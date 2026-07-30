@@ -9,6 +9,7 @@ import ConfirmDialog from "@/components/admin/common/ConfirmDialog";
 import { useGetAdminTournamentsQuery } from "@/store/api/adminApi";
 import { AdminTournament } from "@/types/admin";
 import AssignRoomDialog from "@/components/admin/tournaments/AssignRoomDialog";
+import ResultDeclarationDialog from "@/components/admin/tournaments/ResultDeclarationDialog";
 
 export default function TournamentsPage() {
   const router = useRouter();
@@ -22,6 +23,7 @@ export default function TournamentsPage() {
     type: string;
   } | null>(null);
   const [roomDialog, setRoomDialog] = useState<{ tournamentId: string; roomId?: string; roomPassword:string} |null>(null)
+  const [resultDialogTarget, setResultDialogTarget] = useState<string | null>(null);
   const handleDelete = (id: string) => setDeleteTarget(id);
   const confirmDelete = () => {
     console.log("Delete tournament", deleteTarget);
@@ -30,6 +32,8 @@ export default function TournamentsPage() {
 
   const handleStart = (id: string) => setConfirmAction({ id, type: "start" });
   const handleEnd = (id: string) => setConfirmAction({ id, type: "end" });
+  const handleResults = (id: string) => setResultDialogTarget(id);
+
   const handleAssignRoom = (tournament: AdminTournament) => {
     setRoomDialog({
       tournamentId: tournament._id!,
@@ -67,6 +71,7 @@ export default function TournamentsPage() {
           onEnd={handleEnd}
           onDelete={handleDelete}
           onAssignRoom={handleAssignRoom}
+          onResults={handleResults}
         />
       )}
 
@@ -89,6 +94,11 @@ export default function TournamentsPage() {
         confirmLabel={confirmAction?.type ?? "Confirm"}
       />
       <AssignRoomDialog open={!!roomDialog} roomData={roomDialog} onClose={()=>setRoomDialog(null)}  />
+      <ResultDeclarationDialog
+        tournamentId={resultDialogTarget}
+        open={!!resultDialogTarget}
+        onClose={() => setResultDialogTarget(null)}
+      />
     </div>
   );
 }

@@ -1,7 +1,10 @@
 import mongoose, { Types } from "mongoose";
 import { Participant } from "../participant/participant.model.js";
 import { ITournament, PlayerMode, Tournament } from "./tournament.model.js";
-import { getCountByTeamType } from "../team/team.service.js";
+import {
+  calculateTeamEarnings,
+  getCountByTeamType,
+} from "../team/team.service.js";
 import { ITeam } from "../team/team.model.js";
 import {
   GetAdminTournamentQuery,
@@ -14,11 +17,14 @@ import {
   CreateTournamentDto,
   UpdateTournamentsResultDto,
 } from "./tournament.schema.js";
-import { getTournamentRepo } from "./tournament.repository.js";
+import { getTournamentRepo, updateTournamentCompletionRepo } from "./tournament.repository.js";
 import {
+  bulkUpdateTeamEarningsRepo,
   findTeamsByIds,
+  getTeamsByTournament,
   updateBulkResultsRepo,
 } from "../team/team.repository.js";
+import { creditWalletService } from "../wallet/wallet.service.js";
 
 export const createTournament = async (
   data: CreateTournamentDto,
@@ -316,4 +322,76 @@ export const UpdateResultsService = async (
   }
   await updateBulkResultsRepo(results);
   return;
+};
+export const PublishResultsService = async (
+  tournamentId: mongoose.Types.ObjectId,
+) => {
+  const session = await mongoose.startSession();
+
+  session.startTransaction();
+
+  try {
+    // get the tournament exists
+    const tournament = await getTournamentRepo(tournamentId, session);
+    if (!tournament) {
+      throw new AppError("Tournament not Found", 404);
+    }
+    if (tournament.isCompleted) {
+      throw new AppError("Tournament is already completed", 400);
+    }
+    // get teams
+    const teams = await getTeamsByTournament(tournamentId, session);
+    if (!teams.length) {
+      throw new AppError("No Registered teams found", 400);
+    }
+    // validate the results
+    for (const team of teams) {
+      if (team.stats.placement == null) {
+        throw new AppError(
+          "All teams must have placement before publishing",
+          400,
+        );
+      }
+    }
+    // Calculate totalEarnings
+    const teamEarnings: {
+      teamId: mongoose.Types.ObjectId;
+      captainId: mongoose.Types.ObjectId;
+      earnings: number;
+    }[] = [];
+
+    for (const team of teams) {
+      const earnings = calculateTeamEarnings(tournament, {
+        kills: team.stats.kills,
+        placement: team.stats.placement,
+      });
+      teamEarnings.push({
+        teamId: team._id,
+        captainId: team.captainId,
+        earnings,
+      });
+    }
+    console.log(teams)
+    console.log(teamEarnings)
+    // Bulk update team earnings
+    await bulkUpdateTeamEarningsRepo(teamEarnings, session)
+
+    // credit and create transactions
+    for (const team of teamEarnings) {
+      if (team.earnings <= 0) continue;
+      await creditWalletService(team.captainId, team.earnings, session, "tournament_reward", tournamentId)
+    }
+
+    // mark the tournament Completion
+    await updateTournamentCompletionRepo(tournamentId,session)
+    // mark the transaction completed
+    await session.commitTransaction()
+    await session.endSession()
+  } catch (err) {
+    console.error("Publish Results Error:", err);
+    await session.abortTransaction();
+    throw err;
+  } finally {
+    session.endSession();
+  }
 };

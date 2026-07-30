@@ -1,6 +1,10 @@
 import mongoose from "mongoose";
 import { ITeam, Team } from "./team.model.js";
-import { PlayerMode, Tournament } from "../tournament/tournament.model.js";
+import {
+  ITournament,
+  PlayerMode,
+  Tournament,
+} from "../tournament/tournament.model.js";
 import { generateInviteCode } from "../../utils/inviteCode.js";
 import { AppError } from "../../utils/AppError.js";
 import {
@@ -73,7 +77,7 @@ export async function getTeamService(
   userId: mongoose.Types.ObjectId,
 ): Promise<TeamDetailsResponse> {
   // find the team where the user is a member
-  const team = await findUserTeam(tournamentId, userId)
+  const team = await findUserTeam(tournamentId, userId);
   // if team doesnt exists
   if (!team) {
     throw new AppError("Team not Found", 404);
@@ -255,4 +259,32 @@ export async function UpdateTeamProfileService(
   }
 
   await team.save();
+}
+
+export function calculateTeamEarnings(
+  tournament: ITournament,
+  stats: {
+    kills: number;
+    placement: number;
+  }
+):number {
+  let PlacementPrize=0;
+  if (stats.placement < 4) {
+    if (stats.placement === 1) {
+      PlacementPrize=tournament.PlacementPrize.first
+    } else if(stats.placement === 2) {
+      PlacementPrize=tournament.PlacementPrize.second
+    }
+    else if (stats.placement === 3) {
+      PlacementPrize=tournament.PlacementPrize.third
+    }
+  } else {
+    PlacementPrize=0
+  }
+  let KillPrize=0;
+  if (tournament.PerEliminationPrize) {
+    KillPrize=tournament.PerEliminationPrize*stats.kills
+  }
+  return PlacementPrize+KillPrize  
+
 }
