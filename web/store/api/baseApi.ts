@@ -8,7 +8,8 @@ export const baseApi = createApi({
     'Auth',
     'Tournament',
     'Admin',
-    "Team"
+    "Team",
+    "Wallet"
   ],
   endpoints:()=>({})
 })

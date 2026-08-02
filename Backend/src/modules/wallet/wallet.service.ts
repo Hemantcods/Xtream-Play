@@ -83,3 +83,10 @@ export const checkWalletService = async (
   if (!wallet) throw new AppError("Wallet not found", 404);
   return wallet;
 };
+export const getWalletService = async (userId: mongoose.Types.ObjectId) => {
+  const wallet = await Wallet.findOne({ userId })
+  if (!wallet) throw new AppError("Wallet not Found", 404)
+  return {
+    balance:wallet.balance
+  }
+}

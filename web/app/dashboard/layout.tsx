@@ -14,6 +14,7 @@ import {
 } from "@phosphor-icons/react";
 import { Toaster } from "@/components/ui/sonner";
 import AuthGuard from "@/components/auth/AuthGaurd";
+import WalletBalance from "@/components/Wallet";
 
 const Sidebar = [
   {
@@ -78,7 +79,7 @@ export default function DashboardLayout({
       <aside
         className={`
           fixed z-50 h-full w-64 border-r border-gray-800 bg-[#111622] p-4
-          transition-transform duration-300
+          transition-transform duration-300 
 
           ${open ? "translate-x-0" : "-translate-x-full"}
 
@@ -112,8 +113,11 @@ export default function DashboardLayout({
               <span>{item.name}</span>
             </Link>
           ))}
-        </div>
-      </aside>
+          </div>
+          <div className="mt-50">
+            <WalletBalance/>
+          </div>
+          </aside>
       <div className="flex flex-col h-full w-full flex-1">
         {/* Main */}
         <main className="flex-1 w-full min-h-screen overflow-y-scroll text-white md:ml-0 scrollbar-none">{children}</main>
