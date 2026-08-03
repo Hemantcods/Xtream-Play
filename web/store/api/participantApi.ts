@@ -31,6 +31,7 @@ export const participantApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: (_result, _error, { tournamentId }) => [
         { type: "Tournament", id: tournamentId },
+        "Wallet"
       ],
     }),
     getRegisteredTeams: builder.query<GetRegisteredResponse, string>({

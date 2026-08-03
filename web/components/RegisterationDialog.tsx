@@ -30,6 +30,7 @@ import {
 import { cn, getErrorMessage } from "@/lib/utils";
 import { useJoinTournamentMutation } from "@/store/api/participantApi";
 import { useJoinTeamMutation } from "@/store/api/teamApi";
+import { useGetWalletQuery } from "@/store/api/walletApi";
 
 type JoinMethod = "CREATE_TEAM" | "JOIN_TEAM";
 
@@ -112,8 +113,8 @@ export default function RegistrationDialog({
   const isSolo = tournament.mode.player === "solo";
   const isJoinTeam = joinMethod === "JOIN_TEAM";
   const isCreateTeam = joinMethod === "CREATE_TEAM";
-
-  const walletBalance = 500;
+  const { data:wallet}=useGetWalletQuery()
+  const walletBalance = wallet?.data.balance ?? 0;
   const entryFee = tournament.entryFee;
   const remainingBalance = walletBalance - entryFee;
   const hasInsufficientFunds = remainingBalance < 0;
