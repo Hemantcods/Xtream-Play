@@ -18,15 +18,10 @@ export const register = asyncHandler(
     if (error) {
       throw new AppError(error, 409);
     }
-    const { user, accessToken, refreshToken } = await registerUser(req.body);
-    setAccessTokenCookie(res, accessToken);
-    setRefreshTokenCookie(res, refreshToken);
+    await registerUser(req.body);
     res.status(201).json({
       success: true,
-      message: "user Registered",
-      data: {
-        user,
-      },
+      message: "Registration successful. Please verify your email using the OTP sent to your inbox",
     });
   },
 );
