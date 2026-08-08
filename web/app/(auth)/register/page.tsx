@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useRegisterMutation } from "@/store/api/authApi";
 import { useAppSelector } from "@/store/hooks";
+import { toast } from "sonner";
+import { getErrorMessage } from "@/lib/utils";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -34,11 +36,11 @@ export default function RegisterPage() {
         phone: phone || undefined,
         password,
       }).unwrap();
-  
+      router.push("/verify-email")
       // No router.push()
       // Redux updates automatically and the useEffect redirects.
     } catch (error) {
-      setError("Registration failed");
+      toast.error(getErrorMessage(error))
     } finally {
       setLoading(false);
     }
