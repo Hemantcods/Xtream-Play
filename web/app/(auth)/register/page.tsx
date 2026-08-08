@@ -30,13 +30,13 @@ export default function RegisterPage() {
     setError(null);
   
     try {
-      await register({
+       register({
         name,
         email: email || undefined,
         phone: phone || undefined,
         password,
-      }).unwrap();
-      router.push("/verify-email")
+       }).unwrap();
+      router.push(`/verify-email?email=${email}`)
       // No router.push()
       // Redux updates automatically and the useEffect redirects.
     } catch (error) {
