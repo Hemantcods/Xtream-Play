@@ -7,6 +7,7 @@ import adminRoutes from "./modules/admin/admin.routes.js"
 import teamRoutes from "./modules/team/team.routes.js"
 import walletRoutes from "./modules/wallet/wallet.routes.js"
 import transactionsRoutes from "./modules/transaction/transaction.routes.js"
+import verficationRoutes from "./modules/verification/verification.routes.js"
 import { errorMiddleware } from "./middlewares/error.middleware.js";
 import cors from 'cors'
 import cookieParser from "cookie-parser";
@@ -27,7 +28,8 @@ app.use("/api/user", userRoutes)
 app.use("/api/admin", adminRoutes)
 app.use("/api/team", teamRoutes)
 app.use("/api/wallet", walletRoutes)
-app.use("/api/transactions",transactionsRoutes)
+app.use("/api/transactions", transactionsRoutes)
+app.use("/api/verification",verficationRoutes)
 // error middleware
 app.use(errorMiddleware)
 

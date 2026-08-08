@@ -54,7 +54,8 @@ export const verifyOtpSevice = async (email: string, otp: string) => {
     if (verification.expiresAt < new Date()) {
       throw new AppError("Otp has Expired ;(",400)
     }
-    const isValid = bcrypt.compare(otp, verification.otpHash)
+    const isValid = await bcrypt.compare(otp, verification.otpHash)
+    console.log(otp,isValid)
     if (!isValid) {
       throw new AppError("Invalid Otp",400)
     }
@@ -63,6 +64,7 @@ export const verifyOtpSevice = async (email: string, otp: string) => {
     await session.commitTransaction()
   } catch (error) {
     await session.abortTransaction()
+    console.log(error)
     throw error
   } finally {
     session.endSession()
