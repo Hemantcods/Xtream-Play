@@ -70,3 +70,22 @@ export const verifyOtpSevice = async (email: string, otp: string) => {
     session.endSession()
   }
 }
+export const resendEmailService = async (email: string) => {
+  const user = await findUserByEmailRepo(email)
+  if (!user) {
+    throw new AppError("user not found", 404)
+  }
+  if (user.isEmailVerified) {
+    throw new AppError("Email alredy verifed please login",400)
+  }
+  const exisitnVerification = await findVerificationRepo(user._id, VerificationType.EMAIL_VERIFY)
+  if (exisitnVerification) {
+    const coolDown = 60 * 1000
+    const timePassed = Date.now() - exisitnVerification.createdAt.getTime()
+    if (coolDown > timePassed) {
+      const remainingTime = Math.ceil((coolDown - timePassed) / 1000)
+      throw new AppError(`Please wait ${remainingTime} to request an new otp`,429)
+    }
+  }
+  await createEmailVerificationService(user)
+}

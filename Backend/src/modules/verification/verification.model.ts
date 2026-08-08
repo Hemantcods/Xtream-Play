@@ -11,6 +11,8 @@ export interface IVerification extends Document {
   otpHash: string;
   type: VerificationType;
   expiresAt: Date;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 const VerificationSchema = new mongoose.Schema<IVerification>(
@@ -46,7 +48,7 @@ const VerificationSchema = new mongoose.Schema<IVerification>(
 );
 
 // auto delete old otp Documents
-VerificationSchema.index({expiresAt:1},{expireAfterSeconds:0})
+VerificationSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 
 // fast lookup by userId and type
 VerificationSchema.index({
